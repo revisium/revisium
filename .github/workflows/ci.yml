@@ -1,0 +1,45 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Server CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Get token from Github App
+        id: app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ steps.app_token.outputs.token }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.11.1
+      - name: Create test .env
+        uses: canastro/copy-file-action@master
+        with:
+          source: '.env.example'
+          target: '.env'
+      - run: npm ci
+      - run: npm run prisma:generate
+#      - run: npm test
+#      - run: npm run tsc

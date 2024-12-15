@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "resolveJsonModule": true,
+    "paths": {
+      "src/branch/*": ["./revisium-core/src/branch/*"],
+      "src/clean/*": ["./revisium-core/src/clean/*"],
+      "src/core/*": ["./revisium-core/src/core/*"],
+      "src/database/*": ["./revisium-core/src/database/*"],
+      "src/endpoint/*": ["./revisium-core/src/endpoint/*"],
+      "src/notification/*": ["./revisium-core/src/notification/*"],
+      "src/email/*": ["./revisium-core/src/email/*"],
+      "src/configuration/*": ["./revisium-core/src/configuration/*"],
+      "src/auth/*": ["./revisium-core/src/auth/*"],
+      "src/user/*": ["./revisium-core/src/user/*"],
+      "src/organization/*": ["./revisium-core/src/organization/*"],
+      "src/project/*": ["./revisium-core/src/project/*"],
+      "src/revision/*": ["./revisium-core/src/revision/*"],
+      "src/row/*": ["./revisium-core/src/row/*"],
+      "src/share/*": ["./revisium-core/src/share/*"],
+      "src/table/*": ["./revisium-core/src/table/*"],
+      "src/draft/*": ["./revisium-core/src/draft/*"],
+      "src/graphql-api/*": ["./revisium-core/src/graphql-api/*"],
+      "src/rest-api/*": ["./revisium-core/src/rest-api/*"],
+      "src/health/*": ["./revisium-core/src/health/*"],
+      "src/endpoint-microservice/*": [
+        "./revisium-endpoint/src/endpoint-microservice/*"
+      ],
+      "src/*": ["./src/*"]
+    }
+  }
+}

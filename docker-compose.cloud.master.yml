@@ -1,0 +1,60 @@
+services:
+  redis:
+    container_name: revisium_redis_container-dev
+    image: redis:7.2-alpine
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 1s
+      timeout: 3s
+      retries: 5
+  db:
+    container_name: revisium_pg_container-dev
+    image: postgres:15.4-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: revisium-dev
+      POSTGRES_USER: revisium
+      POSTGRES_PASSWORD: password
+  revisium-core:
+    pull_policy: always
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_started
+    image: revisium/revisium-core:master
+    environment:
+      DATABASE_URL: postgresql://revisium:password@db:5432/revisium-dev?schema=public
+      ENDPOINT_PORT: 6379
+      ENDPOINT_HOST: redis
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1']
+      interval: 5s
+      timeout: 1s
+      retries: 15
+  revisium-endpoint:
+    pull_policy: always
+    depends_on:
+      revisium-core:
+        condition: service_healthy
+    image: revisium/revisium-endpoint:master
+    ports:
+      - 8081:8080
+    environment:
+      DATABASE_URL: postgresql://revisium:password@db:5432/revisium-dev?schema=public
+      ENDPOINT_PORT: 6379
+      ENDPOINT_HOST: redis
+  revisium-admin:
+    pull_policy: always
+    depends_on:
+      revisium-core:
+        condition: service_healthy
+    image: revisium/revisium-admin:master
+    ports:
+      - 8080:8080
+    environment:
+      REACT_APP_GRAPHQL_SERVER_URL: /graphql
+      REACT_APP_GRAPHQL_SERVER_HOST: revisium-core
+      REACT_APP_GRAPHQL_SERVER_PORT: 8080
+      REACT_APP_ENDPOINT_HOST: localhost
+      REACT_APP_ENDPOINT_PORT: 8081
