@@ -18,22 +18,11 @@ jobs:
         shell: bash
 
     steps:
-      - name: Get token from Github App
-        id: app_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          submodules: true
-          token: ${{ steps.app_token.outputs.token }}
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20.11.1
+          node-version: 22.11.0
+          cache: 'npm'
       - name: Create test .env
         uses: canastro/copy-file-action@master
         with:
@@ -43,3 +32,4 @@ jobs:
       - run: npm run prisma:generate
 #      - run: npm test
 #      - run: npm run tsc
+
