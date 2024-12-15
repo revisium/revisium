@@ -1,0 +1,580 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddUserToOrganizationInput {
+  organizationId: String!
+  roleId: UserOrganizationRoles!
+  userId: String!
+}
+
+input AddUserToProjectInput {
+  organizationId: String!
+  projectName: String!
+  roleId: UserProjectRoles!
+  userId: String!
+}
+
+type BranchModel {
+  createdAt: DateTime!
+  draft: RevisionModel!
+  head: RevisionModel!
+  id: String!
+  isRoot: Boolean!
+  name: String!
+  parent: ParentBranchModel
+  project: ProjectModel!
+  projectId: String!
+  revisions(data: GetBranchRevisionsInput!): RevisionConnection!
+  start: RevisionModel!
+  touched: Boolean!
+}
+
+type BranchModelEdge {
+  cursor: String!
+  node: BranchModel!
+}
+
+type BranchesConnection {
+  edges: [BranchModelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ChildBranchModel {
+  branch: BranchModel!
+  revision: RevisionModel!
+}
+
+type ConfigurationModel {
+  availableEmailSignUp: Boolean!
+  github: GithubOauth!
+  google: GoogleOauth!
+}
+
+input ConfirmEmailCodeInput {
+  code: String!
+}
+
+input CreateBranchByRevisionIdInput {
+  branchName: String!
+  revisionId: String!
+}
+
+input CreateEndpointInput {
+  revisionId: String!
+  type: EndpointType!
+}
+
+input CreateProjectInput {
+  branchName: String
+  fromRevisionId: String
+  organizationId: String!
+  projectName: String!
+}
+
+input CreateRevisionInput {
+  branchName: String!
+  comment: String
+  organizationId: String!
+  projectName: String!
+}
+
+input CreateRowInput {
+  data: JSON!
+  revisionId: String!
+  rowId: String!
+  tableId: String!
+}
+
+type CreateRowResultModel {
+  previousVersionTableId: String!
+  row: RowModel!
+  table: TableModel!
+}
+
+input CreateTableInput {
+  revisionId: String!
+  schema: JSON!
+  tableId: String!
+}
+
+type CreateTableResultModel {
+  branch: BranchModel!
+  table: TableModel!
+}
+
+input CreateUserInput {
+  email: String
+  password: String!
+  roleId: UserSystemRole!
+  username: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DeleteEndpointInput {
+  endpointId: String!
+}
+
+input DeleteProjectInput {
+  organizationId: String!
+  projectName: String!
+}
+
+type EndpointModel {
+  createdAt: DateTime!
+  id: String!
+  revision: RevisionModel!
+  type: EndpointType!
+}
+
+enum EndpointType {
+  GRAPHQL
+  REST_API
+}
+
+input GetBranchInput {
+  branchName: String!
+  organizationId: String!
+  projectName: String!
+}
+
+input GetBranchRevisionsInput {
+  after: String
+  before: String
+  comment: String
+  first: Int!
+}
+
+input GetBranchesInput {
+  after: String
+  first: Int!
+  organizationId: String!
+  projectName: String!
+}
+
+input GetMeProjectsInput {
+  after: String
+  first: Int!
+}
+
+input GetProjectBranchesInput {
+  after: String
+  first: Int!
+}
+
+input GetProjectInput {
+  organizationId: String!
+  projectName: String!
+}
+
+input GetProjectsInput {
+  after: String
+  first: Int!
+  organizationId: String!
+}
+
+input GetRevisionInput {
+  revisionId: String!
+}
+
+input GetRevisionTablesInput {
+  after: String
+  first: Int!
+}
+
+input GetRowCountReferencesByInput {
+  revisionId: String!
+  rowId: String!
+  tableId: String!
+}
+
+input GetRowInput {
+  revisionId: String!
+  rowId: String!
+  tableId: String!
+}
+
+input GetRowReferencesInput {
+  after: String
+  first: Int!
+  referenceTableId: String!
+}
+
+input GetRowsInput {
+  after: String
+  first: Int!
+  revisionId: String!
+  tableId: String!
+}
+
+input GetTableInput {
+  revisionId: String!
+  tableId: String!
+}
+
+input GetTableReferencesInput {
+  after: String
+  first: Int!
+}
+
+input GetTableRowsInput {
+  after: String
+  first: Int!
+}
+
+input GetTablesInput {
+  after: String
+  first: Int!
+  revisionId: String!
+}
+
+input GetUsersOrganizationInput {
+  after: String
+  first: Int!
+  organizationId: String!
+}
+
+input GetUsersProjectInput {
+  after: String
+  first: Int!
+  organizationId: String!
+  projectName: String!
+}
+
+type GithubOauth {
+  available: Boolean!
+  clientId: String
+}
+
+type GoogleOauth {
+  available: Boolean!
+  clientId: String
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input LoginGithubInput {
+  code: String!
+}
+
+input LoginGoogleInput {
+  code: String!
+  redirectUrl: String!
+}
+
+input LoginInput {
+  emailOrUsername: String!
+  password: String!
+}
+
+type LoginModel {
+  accessToken: String!
+}
+
+type Mutation {
+  addUserToOrganization(data: AddUserToOrganizationInput!): Boolean!
+  addUserToProject(data: AddUserToProjectInput!): Boolean!
+  confirmEmailCode(data: ConfirmEmailCodeInput!): LoginModel!
+  createBranchByRevisionId(data: CreateBranchByRevisionIdInput!): BranchModel!
+  createEndpoint(data: CreateEndpointInput!): EndpointModel!
+  createProject(data: CreateProjectInput!): ProjectModel!
+  createRevision(data: CreateRevisionInput!): RevisionModel!
+  createRow(data: CreateRowInput!): CreateRowResultModel!
+  createTable(data: CreateTableInput!): CreateTableResultModel!
+  createUser(data: CreateUserInput!): Boolean!
+  deleteEndpoint(data: DeleteEndpointInput!): Boolean!
+  deleteProject(data: DeleteProjectInput!): Boolean!
+  login(data: LoginInput!): LoginModel!
+  loginGithub(data: LoginGithubInput!): LoginModel!
+  loginGoogle(data: LoginGoogleInput!): LoginModel!
+  removeRow(data: RemoveRowInput!): RemoveRowResultModel!
+  removeTable(data: RemoveTableInput!): RemoveTableResultModel!
+  removeUserFromOrganization(data: RemoveUserFromOrganizationInput!): Boolean!
+  removeUserFromProject(data: RemoveUserFromProjectInput!): Boolean!
+  revertChanges(data: RevertChangesInput!): BranchModel!
+  setUsername(data: SetUsernameInput!): Boolean!
+  signUp(data: SignUpInput!): Boolean!
+  updatePassword(data: UpdatePasswordInput!): Boolean!
+  updateProject(data: UpdateProjectInput!): Boolean!
+  updateRow(data: UpdateRowInput!): UpdateRowResultModel!
+  updateTable(data: UpdateTableInput!): UpdateRowResultModel!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type ParentBranchModel {
+  branch: BranchModel!
+  revision: RevisionModel!
+}
+
+type ProjectModel {
+  allBranches(data: GetProjectBranchesInput!): BranchesConnection!
+  createdAt: DateTime!
+  id: String!
+  isPublic: Boolean!
+  name: String!
+  organizationId: String!
+  rootBranch: BranchModel!
+}
+
+type ProjectModelEdge {
+  cursor: String!
+  node: ProjectModel!
+}
+
+type ProjectsConnection {
+  edges: [ProjectModelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type Query {
+  branch(data: GetBranchInput!): BranchModel!
+  branches(data: GetBranchesInput!): BranchesConnection!
+  configuration: ConfigurationModel!
+  getRowCountReferencesTo(data: GetRowCountReferencesByInput!): Int!
+  me: UserModel!
+  meProjects(data: GetMeProjectsInput!): ProjectsConnection!
+  project(data: GetProjectInput!): ProjectModel!
+  projects(data: GetProjectsInput!): ProjectsConnection!
+  revision(data: GetRevisionInput!): RevisionModel!
+  row(data: GetRowInput!): RowModel
+  rows(data: GetRowsInput!): RowsConnection!
+  table(data: GetTableInput!): TableModel
+  tables(data: GetTablesInput!): TablesConnection!
+  usersOrganization(data: GetUsersOrganizationInput!): UsersOrganizationConnection!
+  usersProject(data: GetUsersProjectInput!): UsersProjectConnection!
+}
+
+input RemoveRowInput {
+  revisionId: String!
+  rowId: String!
+  tableId: String!
+}
+
+type RemoveRowResultModel {
+  branch: BranchModel!
+  previousVersionTableId: String
+  table: TableModel
+}
+
+input RemoveTableInput {
+  revisionId: String!
+  tableId: String!
+}
+
+type RemoveTableResultModel {
+  branch: BranchModel!
+}
+
+input RemoveUserFromOrganizationInput {
+  organizationId: String!
+  userId: String!
+}
+
+input RemoveUserFromProjectInput {
+  organizationId: String!
+  projectName: String!
+  userId: String!
+}
+
+input RevertChangesInput {
+  branchName: String!
+  organizationId: String!
+  projectName: String!
+}
+
+type RevisionConnection {
+  edges: [RevisionModelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type RevisionModel {
+  branch: BranchModel!
+  child: RevisionModel
+  childBranches: [ChildBranchModel!]!
+  children: [RevisionModel!]!
+  comment: String!
+  createdAt: DateTime!
+  endpoints: [EndpointModel!]!
+  id: String!
+  isDraft: Boolean!
+  isHead: Boolean!
+  isStart: Boolean!
+  parent: RevisionModel
+  sequence: Int!
+  tables(data: GetRevisionTablesInput!): TablesConnection!
+}
+
+type RevisionModelEdge {
+  cursor: String!
+  node: RevisionModel!
+}
+
+type RoleModel {
+  id: String!
+  name: String!
+}
+
+type RowModel {
+  countReferencesTo: Int!
+  createdAt: DateTime!
+  data: JSON!
+  id: String!
+  readonly: Boolean!
+  rowReferencesBy(data: GetRowReferencesInput!): RowsConnection!
+  rowReferencesTo(data: GetRowReferencesInput!): RowsConnection!
+  versionId: String!
+}
+
+type RowModelEdge {
+  cursor: String!
+  node: RowModel!
+}
+
+type RowsConnection {
+  edges: [RowModelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input SetUsernameInput {
+  username: String!
+}
+
+input SignUpInput {
+  email: String!
+  password: String!
+  username: String!
+}
+
+type TableModel {
+  count: Int!
+  countReferencesBy: Int!
+  countReferencesTo: Int!
+  createdAt: DateTime!
+  id: String!
+  readonly: Boolean!
+  referencesBy(data: GetTableReferencesInput!): TablesConnection!
+  referencesTo(data: GetTableReferencesInput!): TablesConnection!
+  rows(data: GetTableRowsInput!): RowsConnection!
+  schema: JSON!
+  versionId: String!
+}
+
+type TableModelEdge {
+  cursor: String!
+  node: TableModel!
+}
+
+type TablesConnection {
+  edges: [TableModelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input UpdatePasswordInput {
+  newPassword: String!
+  oldPassword: String!
+}
+
+input UpdateProjectInput {
+  isPublic: Boolean!
+  organizationId: String!
+  projectName: String!
+}
+
+input UpdateRowInput {
+  data: JSON!
+  revisionId: String!
+  rowId: String!
+  tableId: String!
+}
+
+type UpdateRowResultModel {
+  previousVersionRowId: String!
+  previousVersionTableId: String!
+  row: RowModel!
+  table: TableModel!
+}
+
+input UpdateTableInput {
+  patches: JSON!
+  revisionId: String!
+  tableId: String!
+}
+
+type UserModel {
+  email: String
+  id: String!
+  organizationId: String
+  username: String
+}
+
+enum UserOrganizationRoles {
+  developer
+  editor
+  organizationAdmin
+  organizationOwner
+  reader
+}
+
+enum UserProjectRoles {
+  developer
+  editor
+  reader
+}
+
+enum UserSystemRole {
+  systemAdmin
+  systemFullApiRead
+  systemUser
+}
+
+type UsersOrganizationConnection {
+  edges: [UsersOrganizationModelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UsersOrganizationModel {
+  id: String!
+  role: RoleModel!
+  user: UserModel!
+}
+
+type UsersOrganizationModelEdge {
+  cursor: String!
+  node: UsersOrganizationModel!
+}
+
+type UsersProjectConnection {
+  edges: [UsersProjectModelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UsersProjectModel {
+  id: String!
+  role: RoleModel!
+  user: UserModel!
+}
+
+type UsersProjectModelEdge {
+  cursor: String!
+  node: UsersProjectModel!
+}

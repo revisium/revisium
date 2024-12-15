@@ -1,0 +1,20 @@
+services:
+  db:
+    container_name: revisium_pg_container-dev
+    image: postgres:15.4-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: revisium-dev
+      POSTGRES_USER: revisium
+      POSTGRES_PASSWORD: password
+  revisium-build:
+    depends_on:
+      - db
+    image: revisium-build
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      DATABASE_URL: postgresql://revisium:password@db:5432/revisium-dev?schema=public
