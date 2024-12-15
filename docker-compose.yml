@@ -9,10 +9,7 @@ services:
   revisium:
     depends_on:
       - db
-    image: revisium
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: revisium/revisium:master
     ports:
       - 8080:8080
     environment:
