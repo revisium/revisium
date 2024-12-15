@@ -10,7 +10,32 @@ Revisium is a tool (UI/API) inspired by JSON (JSON Schema) and Git, designed to 
 
 Revisium leverages the power of JSON schemas and the concepts of version control systems similar to Git to offer a robust framework for content management. Whether you're building a simple website or a complex application, Revisium can serve as the backbone for your content infrastructure, allowing for seamless integration and customization.
 
-### Key Features
+## Getting Started
+
+### Running Revisium with Docker
+
+You can run **Revisium** using Docker by executing the following command.
+
+```shell
+docker run -d \
+  --name revisium \
+  --env DATABASE_URL="postgresql://<db_user>:<db_password>@host.docker.internal:5432/<database>" \
+  -p 8080:8080 \
+  revisium/revisium:master
+```
+
+### Running Revisium with Docker Compose
+
+[docker-compose.yml](./docker-compose.yml)
+
+### Accessing
+Once the services are up and running, you can access the Revisium application using the following default credentials:
+
+- URL: http://localhost:8080
+- Username: admin
+- Password: admin
+
+## Key Features
 
 - **SaaS or Self-Hosted**: Flexible deployment options to suit your infrastructure needs.
 - **Declarative Schema Creation and Editing**: Easily define and modify data schemas in a declarative manner.
