@@ -1,3 +1,0 @@
-[submodule "revisium-endpoint"]
-	path = revisium-endpoint
-	url = git@github.com:revisium/revisium-endpoint.git

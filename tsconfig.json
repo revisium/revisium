@@ -17,12 +17,6 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "resolveJsonModule": true,
-    "paths": {
-      "src/endpoint-microservice/*": [
-        "./revisium-endpoint/src/endpoint-microservice/*"
-      ],
-      "src/*": ["./src/*"]
-    }
+    "resolveJsonModule": true
   }
 }
