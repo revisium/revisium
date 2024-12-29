@@ -1,6 +1,0 @@
-[submodule "revisium-core"]
-	path = revisium-core
-	url = git@github.com:revisium/revisium-core.git
-[submodule "revisium-endpoint"]
-	path = revisium-endpoint
-	url = git@github.com:revisium/revisium-endpoint.git
