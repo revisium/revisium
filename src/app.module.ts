@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Request, Response, NextFunction } from 'express';
-import { CoreModule } from 'src/core/core.module';
+import { CoreModule } from '@revisium/core'
 import { EndpointMicroserviceModule } from 'src/endpoint-microservice/endpoint-microservice.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
