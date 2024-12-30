@@ -6,6 +6,7 @@ import { EndpointMicroserviceModule } from '@revisium/endpoint';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { EnvjsController } from 'src/envjs.controller';
+import { MetricsApiModule } from 'src/metrics-api/metrics-api.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EnvjsController } from 'src/envjs.controller';
     }),
     CoreModule,
     EndpointMicroserviceModule,
+    MetricsApiModule,
   ],
   controllers: [EnvjsController],
 })
