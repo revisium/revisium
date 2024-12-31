@@ -4,8 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'src/app.module';
-import { InMemoryServer } from 'src/in-memory-server';
-import { notificationEventEmitter } from '@revisium/core';
+import { InMemoryServer } from '@revisium/core';
 import * as packageJson from '../package.json';
 
 async function bootstrap() {
@@ -25,7 +24,7 @@ async function bootstrap() {
   initSwagger(app);
 
   app.connectMicroservice<MicroserviceOptions>({
-    strategy: new InMemoryServer(notificationEventEmitter),
+    strategy: new InMemoryServer(),
   });
   await app.startAllMicroservices();
 
