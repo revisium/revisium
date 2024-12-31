@@ -1,42 +1,22 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { Request, Response, NextFunction } from 'express';
-import { CoreModule } from '@revisium/core';
+import { AdminModule, CoreModule, MetricsApiModule } from '@revisium/core';
 import { EndpointMicroserviceModule } from '@revisium/endpoint';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { EnvjsController } from 'src/envjs.controller';
-import { MetricsApiModule } from 'src/metrics-api/metrics-api.module';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: ['.env', '.env.production', '.env.development'],
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../..', 'client'),
-      serveStaticOptions: {
-        cacheControl: true,
-      },
-    }),
     CoreModule,
     EndpointMicroserviceModule,
     MetricsApiModule,
+    AdminModule.forRoot({
+      rootPath: join(__dirname, '../..', 'client'),
+    }),
   ],
   controllers: [EnvjsController],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply((req: Request, res: Response, next: NextFunction) => {
-        const excludedExtensions = /\.(js|css|svg|png|jpg|jpeg)$/;
-
-        if (!excludedExtensions.test(req.baseUrl)) {
-          res.setHeader('Cache-Control', 'no-store');
-        }
-
-        next();
-      })
-      .forRoutes('*');
-  }
-}
+export class AppModule {}
