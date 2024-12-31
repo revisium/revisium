@@ -45,7 +45,7 @@
     "@nestjs/swagger": "^7.4.2",
     "@prisma/client": "^5.10.2",
     "@revisium/admin": "^0.9.0",
-    "@revisium/core": "file:../revisium-core/revisium-core-0.9.3.tgz",
+    "@revisium/core": "^0.9.4",
     "@revisium/endpoint": "^0.9.1",
     "ajv": "^8.16.0",
     "bcrypt": "^5.1.1",
