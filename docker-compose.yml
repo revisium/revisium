@@ -15,4 +15,5 @@ services:
       - 8080:8080
     environment:
       DATABASE_URL: postgresql://revisium:password@db:5432/revisium-dev?schema=public
-      METRICS_ENABLED: "true"
+#      METRICS_ENABLED: "true"
+#      GRACEFUL_SHUTDOWN_TIMEOUT: 10000
