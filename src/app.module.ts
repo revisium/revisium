@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AdminModule, CoreModule, MetricsApiModule } from '@revisium/core';
+import {
+  AdminModule,
+  CoreModule,
+  GracefulShutdownModule,
+  MetricsApiModule,
+} from '@revisium/core';
 import { EndpointMicroserviceModule } from '@revisium/endpoint';
 import { join } from 'path';
 
@@ -12,6 +17,7 @@ import { join } from 'path';
     CoreModule,
     EndpointMicroserviceModule,
     MetricsApiModule,
+    GracefulShutdownModule,
     AdminModule.forRoot({
       rootPath: join(__dirname, '../..', 'client'),
     }),

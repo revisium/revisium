@@ -1,6 +1,6 @@
 {
   "name": "revisium",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Revisium is a tool (UI/API) inspired by JSON (JSON Schema) and Git, designed to provide a flexible and low-level headless CMS solution.",
   "private": true,
   "homepage": "https://revisium.io",
@@ -9,6 +9,8 @@
   "scripts": {
     "prisma:generate": "npx prisma generate --schema node_modules/@revisium/core/dist/prisma/schema.prisma",
     "prisma:migrate:deploy": "npx prisma migrate deploy  --schema node_modules/@revisium/core/dist/prisma/schema.prisma",
+    "prisma:studio": "npx prisma studio  --schema node_modules/@revisium/core/dist/prisma/schema.prisma",
+    "seed": "node node_modules/@revisium/core/dist/prisma/seed.js",
     "build": "nest build",
     "copy:admin": "cp -R node_modules/@revisium/admin/dist ./client",
     "prepare": "npm run copy:admin",
@@ -34,8 +36,8 @@
     "@nestjs/platform-express": "^10.3.3",
     "@nestjs/swagger": "^7.4.2",
     "@revisium/admin": "^0.9.0",
-    "@revisium/core": "^0.9.4",
-    "@revisium/endpoint": "^0.9.1",
+    "@revisium/core": "^0.9.6",
+    "@revisium/endpoint": "^0.9.2",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1"
   },
