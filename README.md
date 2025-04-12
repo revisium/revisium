@@ -23,7 +23,7 @@ docker run -d \
   --name revisium \
   --env DATABASE_URL="postgresql://<db_user>:<db_password>@host.docker.internal:5432/<database>" \
   -p 8080:8080 \
-  revisium/revisium:master
+  revisium/revisium:v0.10.0
 ```
 
 ### Running Revisium with Docker Compose
