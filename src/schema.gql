@@ -460,11 +460,13 @@ type RoleModel {
 type RowModel {
   countForeignKeysTo: Int!
   createdAt: DateTime!
+  createdId: String!
   data: JSON!
   id: String!
   readonly: Boolean!
   rowForeignKeysBy(data: GetRowForeignKeysInput!): RowsConnection!
   rowForeignKeysTo(data: GetRowForeignKeysInput!): RowsConnection!
+  updatedAt: DateTime!
   versionId: String!
 }
 
@@ -494,12 +496,14 @@ type TableModel {
   countForeignKeysBy: Int!
   countForeignKeysTo: Int!
   createdAt: DateTime!
+  createdId: String!
   foreignKeysBy(data: GetTableForeignKeysInput!): TablesConnection!
   foreignKeysTo(data: GetTableForeignKeysInput!): TablesConnection!
   id: String!
   readonly: Boolean!
   rows(data: GetTableRowsInput!): RowsConnection!
   schema: JSON!
+  updatedAt: DateTime!
   versionId: String!
 }
 
