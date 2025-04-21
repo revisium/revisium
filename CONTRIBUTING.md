@@ -13,7 +13,7 @@ Follow these steps to run the entire Revisium stack on your machine.
 
 ### 2. revisium-core
 
-1. Clone the repo and switch to its directory:
+1. Clone the [repo](https://github.com/revisium/revisium-core) and switch to its directory:
    ```bash
    git clone https://github.com/revisium/revisium-core.git
    cd revisium-core
@@ -43,7 +43,7 @@ Follow these steps to run the entire Revisium stack on your machine.
 
 ### 3. revisium-endpoint
 
-1. In a new terminal, clone and enter the endpoint repo:
+1. In a new terminal, clone and enter the endpoint [repo](https://github.com/revisium/revisium-endpoint):
    ```bash
    git clone https://github.com/revisium/revisium-endpoint.git
    cd revisium-endpoint
@@ -60,7 +60,7 @@ Follow these steps to run the entire Revisium stack on your machine.
 
 ### 4. revisium-admin
 
-1. In another terminal, clone and enter the admin repo:
+1. In another terminal, clone and enter the admin [repo](https://github.com/revisium/revisium-admin):
    ```bash
    git clone https://github.com/revisium/revisium-admin.git
    cd revisium-admin
