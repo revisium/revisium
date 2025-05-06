@@ -1,17 +1,19 @@
 name: Build
 
 on:
+  workflow_run:
+    workflows: ['Playwright Tests']
+    types:
+      - completed
   workflow_dispatch:
-  push:
-    branches: [master]
-    tags:
-      - 'v*'
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
 
 jobs:
   build-and-push-image:
+    #if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'pull_request' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
