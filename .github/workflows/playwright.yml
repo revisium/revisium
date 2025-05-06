@@ -1,6 +1,7 @@
 name: Playwright Tests
 
 permissions:
+  actions: read
   contents: write
 
 on:
