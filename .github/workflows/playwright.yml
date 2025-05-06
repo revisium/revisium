@@ -66,3 +66,17 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  dispatch-build:
+    needs: test
+    runs-on: ubuntu-latest
+    #if: needs.test.result == 'success' && github.event_name == 'push'
+    if: needs.test.result == 'success'
+    steps:
+      - name: Trigger Build workflow
+        uses: peter-evans/workflow-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          workflow: build.yml
+          ref: ${{ github.ref_name }}
