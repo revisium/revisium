@@ -2,30 +2,14 @@ name: Build and Push Image
 
 on:
   workflow_dispatch:
-    inputs:
-      repository:
-        description: '(owner/repo)'
-        required: false
-        default: ${{ github.repository }}
-      ref:
-        description: 'Git ref'
-        required: false
-        default: ${{ github.ref_name }}
-
   workflow_call:
-    inputs:
-      repository:
-        required: true
-        type: string
-        default: ${{ github.repository }}
-      ref:
-        required: true
-        type: string
-        default: ${{ github.ref_name }}
 
 permissions:
   contents: read
   packages: write
+
+env:
+  IMAGE_NAME: ${{ github.event.repository.name }}
 
 jobs:
   build-and-push-image:
@@ -34,9 +18,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.repository }}
-          ref: ${{ inputs.ref }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -56,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ inputs.repository }}
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
