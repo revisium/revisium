@@ -38,3 +38,9 @@ lerna-debug.log*
 # env
 .env
 .env.development.local
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
