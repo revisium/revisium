@@ -74,7 +74,7 @@ jobs:
     if: needs.test.result == 'success'
     steps:
       - name: Trigger Build workflow
-        uses: peter-evans/workflow-dispatch@v2
+        uses: peter-evans/workflow-dispatch@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
