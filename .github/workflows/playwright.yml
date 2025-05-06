@@ -73,3 +73,4 @@ jobs:
     #if: ${{ github.event_name == 'push' && needs.test.result == 'success' }}
     if: ${{ needs.test.result == 'success' }}
     uses: ./.github/workflows/build.yml
+    secrets: inherit
