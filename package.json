@@ -27,7 +27,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "tsc": "tsc -p tsconfig.json",
-    "prepare:playwirght-tests": "docker compose -f docker-compose.tests.yml -p test-revisium-playwright up --build -d && sleep 5 &&  && npm run prisma:migrate:deploy && npm run prisma:generate && npm run seed"
+    "prepare:playwirght-tests": "docker compose -f docker-compose.tests.yml -p test-revisium-playwright up --build -d && sleep 5 && npm run prisma:migrate:deploy && npm run prisma:generate && npm run seed"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.3",
