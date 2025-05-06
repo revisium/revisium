@@ -2,8 +2,6 @@ name: Build
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [run-build]
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
