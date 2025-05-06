@@ -38,8 +38,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and start Docker Compose services
-        run: npm run prepare:playwirght-tests
+      - name: Prepare DB & Admin
+        run: npm run prepare:playwright-tests
+
+      - name: Start NestJS in background
+        run: npm run start:debug &
+
+      - name: Wait for NestJS to be ready
+        run: npx wait-on http://localhost:8080
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
