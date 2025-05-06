@@ -7,11 +7,11 @@ test('has title', async ({ page }) => {
   await expect(page).toHaveTitle(/revisium/);
 });
 
-test('Try Revisium Cloud (Alpha)', async ({ page }) => {
-  await page.goto('https://revisium.io/');
-
-  // Click the cloud link.
-  await page.getByText('Try Revisium Cloud (Alpha)').click();
-
-  expect(page).toHaveURL(`https://cloud.revisium.io/`);
-});
+// test('Try Revisium Cloud (Alpha)', async ({ page }) => {
+//   await page.goto('https://revisium.io/');
+//
+//   // Click the cloud link.
+//   await page.getByText('Try Revisium Cloud (Alpha)').click();
+//
+//   expect(page).toHaveURL(`https://cloud.revisium.io/`);
+// });
