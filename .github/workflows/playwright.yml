@@ -1,0 +1,62 @@
+name: Playwright Tests
+permissions:
+  contents: read
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.11.0
+          cache: 'npm'
+
+      - name: Create test .env
+        uses: canastro/copy-file-action@master
+        with:
+          source: '.env.e2e-tests'
+          target: '.env'
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(jq -r '.dependencies["@playwright/test"].version' package.json)" >> $GITHUB_OUTPUT
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare DB & Admin
+        run: npm run prepare:playwright-tests
+
+      - name: Start NestJS in background
+        run: npm run start:debug &
+
+      - name: Wait for NestJS to be ready
+        run: npx wait-on http://localhost:8080
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

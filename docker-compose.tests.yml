@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:17.4-alpine
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: revisium-dev
+      POSTGRES_USER: revisium
+      POSTGRES_PASSWORD: password
