@@ -1,11 +1,17 @@
 name: Playwright Tests
+
 permissions:
   contents: read
+
 on:
+  workflow_dispatch:
   push:
     branches: [master]
+    tags:
+      - 'v*'
   pull_request:
     branches: [master]
+
 jobs:
   test:
     timeout-minutes: 60
