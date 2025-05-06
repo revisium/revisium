@@ -2,6 +2,8 @@ name: Build
 
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: [run-build]
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
@@ -17,7 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: true
           ref: ${{ github.event.client_payload.ref }}
 
       - name: Set up QEMU

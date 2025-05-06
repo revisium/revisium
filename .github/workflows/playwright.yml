@@ -2,6 +2,7 @@ name: Playwright Tests
 
 permissions:
   contents: read
+  actions: write
 
 on:
   workflow_dispatch:
@@ -73,10 +74,12 @@ jobs:
     #if: needs.test.result == 'success' && github.event_name == 'push'
     if: needs.test.result == 'success'
     steps:
-      - name: Trigger Build workflow
-        uses: peter-evans/workflow-dispatch@v3
+      - name: Trigger repository_dispatch for Build
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          workflow: build.yml
-          ref: ${{ github.ref_name }}
+          event-type: run-build
+          client-payload: >
+            {
+              "ref": "${{ github.ref_name }}"
+            }
