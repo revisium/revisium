@@ -3,7 +3,7 @@ import {
   JsonPatchMove,
   JsonPatchRemove,
   JsonPatchReplace,
-} from "./types/json-patch.types";
+} from './types/json-patch.types';
 import {
   JsonArraySchema,
   JsonBooleanSchema,
@@ -12,7 +12,7 @@ import {
   JsonSchema,
   JsonSchemaTypeName,
   JsonStringSchema,
-} from "./types/schema.types";
+} from './types/schema.types';
 
 export const getReplacePatch = ({
   path,
@@ -21,7 +21,7 @@ export const getReplacePatch = ({
   path: string;
   value: JsonSchema;
 }): JsonPatchReplace => ({
-  op: "replace",
+  op: 'replace',
   path,
   value,
 });
@@ -31,7 +31,7 @@ export const getRemovePatch = ({
 }: {
   path: string;
 }): JsonPatchRemove => ({
-  op: "remove",
+  op: 'remove',
   path,
 });
 
@@ -42,7 +42,7 @@ export const getAddPatch = ({
   path: string;
   value: JsonSchema;
 }): JsonPatchAdd => ({
-  op: "add",
+  op: 'add',
   path,
   value,
 });
@@ -54,13 +54,13 @@ export const getMovePatch = ({
   from: string;
   path: string;
 }): JsonPatchMove => ({
-  op: "move",
+  op: 'move',
   from,
   path,
 });
 
 export const getStringSchema = ({
-  defaultValue = "",
+  defaultValue = '',
   reference,
 }: {
   defaultValue?: string;
@@ -97,7 +97,7 @@ export const getObjectSchema = (
 ): JsonObjectSchema => ({
   type: JsonSchemaTypeName.Object,
   additionalProperties: false,
-  required: Object.keys(properties).sort(),
+  required: Object.keys(properties).sort((a, b) => a.localeCompare(b)),
   properties,
 });
 
