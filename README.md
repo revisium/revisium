@@ -14,6 +14,10 @@ https://github.com/user-attachments/assets/216a9397-ff23-4ff6-bf1a-e39ba22cbaac
 
 ## Getting Started
 
+### Online demo (alpha)
+
+- https://cloud.revisium.io/
+
 ### Running Revisium with Docker
 
 You can run **Revisium** using Docker by executing the following command.
@@ -28,7 +32,8 @@ docker run -d \
 
 ### Running Revisium with Docker Compose
 
-[docker-compose.yml](./docker-compose.yml)
+[docker-compose.yml](https://github.com/revisium/revisium/blob/master/docker-compose.yml)
+
 
 ### Accessing
 Once the services are up and running, you can access the Revisium application using the following default credentials:
@@ -39,25 +44,25 @@ Once the services are up and running, you can access the Revisium application us
 
 ## Key Features
 
-- **SaaS or Self-Hosted**: Flexible deployment options to suit your infrastructure needs.
-- **Declarative Schema Creation and Editing**: Easily define and modify data schemas in a declarative manner.
-- **Versioning and State Management**: Manage schema and data versions with Git-like revision control, branching, and forking.
-- **Automatic API Generation**: Generate REST and GraphQL APIs automatically based on your schemas.
-- **Support for Primitives, Arrays, Objects, and Hierarchies**: Handle a wide range of data types, including root-level values and nested structures.
-- **Schema Relationships**: Establish connections between schemas, allowing JSON fields to be assigned as keys with referential integrity support.
-- **Data Migrations**: Handle schema changes with data migrations, including renaming, creating, deleting fields, type transformations, and moving fields between nodes.
-- **UI and API Access**: Interact with Revisium through both a user-friendly interface and a powerful API.
+- SaaS or Self-Hosted: Flexible deployment options to suit your infrastructure needs.
+- Declarative Schema Creation and Editing: Easily define and modify data schemas in a declarative manner.
+- Versioning and State Management: Manage schema and data versions with Git-like revision control, branching, and forking.
+- Automatic API Generation: Generate REST and GraphQL APIs automatically based on your schemas.
+- Support for Primitives, Arrays, Objects, and Hierarchies: Handle a wide range of data types, including root-level values and nested structures.
+- Schema Relationships: Establish connections between schemas, allowing JSON fields to be assigned as keys with referential integrity support.
+- Data Migrations: Handle schema changes with data migrations, including renaming, creating, deleting fields, type transformations, and moving fields between nodes.
+- UI and API Access: Interact with Revisium through both a user-friendly interface and a powerful API.
 
 ## Usage Examples
 
-- **Low-Level Headless CMS**: Utilize Revisium as the foundation for your content management needs without being tied to a specific front-end.
-- **Source of Truth for Configurations and Reference Tables**: Manage configurations and reference data within your databases, including initial database seeding.
-- **Remote Configuration Management**: Control and update remote configurations seamlessly.
-- **Immutable or Draft Data States**: Ensure data immutability or manage draft states for atomic data updates.
-- **Data Branching for Different Environments**: Create data branches for environments like "develop," "staging," and "production."
-- **Importing Schemas from Version Control Systems**: Import configuration and reference information from repositories for enhanced service management.
-- **Versioned Backups with Fast Access**: Maintain versioned backups that can be quickly accessed via API or UI.
-- **Quick Forking of Templates**: Clone templates with predefined schemas and data to create tailored instances for specific entities or projects. Each user project or entity can start with a standard set of schemas and data while maintaining independent API and versioning.
+- Low-Level Headless CMS: Utilize Revisium as the foundation for your content management needs without being tied to a specific front-end.
+- Source of Truth for Configurations and Reference Tables: Manage configurations and reference data within your databases, including initial database seeding.
+- Remote Configuration Management: Control and update remote configurations seamlessly.
+- Immutable or Draft Data States: Ensure data immutability or manage draft states for atomic data updates.
+- Data Branching for Different Environments: Create data branches for environments like "develop," "staging," and "production."
+- Importing Schemas from Version Control Systems: Import configuration and reference information from repositories for enhanced service management.
+- Versioned Backups with Fast Access: Maintain versioned backups that can be quickly accessed via API or UI.
+- Quick Forking of Templates: Clone templates with predefined schemas and data to create tailored instances for specific entities or projects. Each user project or entity can start with a standard set of schemas and data while maintaining independent API and versioning.
 
 ## Disclaimer
 
