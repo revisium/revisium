@@ -10,10 +10,7 @@ Revisium is a tool (UI/API) inspired by JSON (JSON Schema) and Git, designed to 
 
 Revisium leverages the power of JSON schemas and the concepts of version control systems similar to Git to offer a robust framework for content management. Whether you're building a simple website or a complex application, Revisium can serve as the backbone for your content infrastructure, allowing for seamless integration and customization.
 
-
-https://github.com/user-attachments/assets/ffd09988-4315-4b84-a29d-fe23ba793365
-
-<img width="1505" alt="Revisium" src="https://github.com/user-attachments/assets/ef56cc5b-f891-4724-9cae-d6b7ff797dc6" />
+https://github.com/user-attachments/assets/216a9397-ff23-4ff6-bf1a-e39ba22cbaac
 
 ## Getting Started
 
