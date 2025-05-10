@@ -38,7 +38,7 @@ function initSwagger(app: INestApplication<any>) {
     .build();
 
   const document = SwaggerModule.createDocument(app, documentBuilder);
-  SwaggerModule.setup('/-/api', app, document, {
+  SwaggerModule.setup('/api', app, document, {
     swaggerOptions: {
       tryItOutEnabled: true,
       filter: true,

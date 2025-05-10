@@ -1,6 +1,6 @@
 {
   "name": "revisium",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "description": "Revisium is a tool (UI/API) inspired by JSON (JSON Schema) and Git, designed to provide a flexible and low-level headless CMS solution.",
   "private": true,
   "homepage": "https://revisium.io",
@@ -30,7 +30,7 @@
     "prepare:playwright-tests": "docker compose -f docker-compose.tests.yml -p test-revisium-playwright up --build --wait -d && npm run prisma:migrate:deploy && npm run prisma:generate && npm run seed && npm run copy:admin",
     "playwright-tests": "npx playwright test",
     "playwright-tests:ui": "npx playwright test --ui",
-    "playwright-tests:generate-api": "npx swagger-typescript-api generate -p http://localhost:8080/-/api-json -o e2e/utils/api -n revisium.ts"
+    "playwright-tests:generate-api": "npx swagger-typescript-api generate -p http://localhost:8080/api-json -o e2e/utils/api -n revisium.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.3",
@@ -39,9 +39,9 @@
     "@nestjs/microservices": "^10.3.3",
     "@nestjs/platform-express": "^10.3.3",
     "@nestjs/swagger": "^7.4.2",
-    "@revisium/admin": "^0.10.0",
-    "@revisium/core": "^0.10.2",
-    "@revisium/endpoint": "^0.10.0",
+    "@revisium/admin": "^1.0.0",
+    "@revisium/core": "^1.0.0",
+    "@revisium/endpoint": "^1.0.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1"
   },
@@ -62,7 +62,7 @@
     "jest": "^29.7.0",
     "jest-mock-extended": "^3.0.5",
     "prettier": "^3.2.5",
-    "prisma": "^6.1.0",
+    "prisma": "^6.7.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.4",
     "swagger-typescript-api": "^13.1.3",
