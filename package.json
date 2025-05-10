@@ -41,7 +41,7 @@
     "@nestjs/swagger": "^7.4.2",
     "@revisium/admin": "^1.0.0",
     "@revisium/core": "^1.0.0",
-    "@revisium/endpoint": "^1.0.0",
+    "@revisium/endpoint": "^1.1.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1"
   },
