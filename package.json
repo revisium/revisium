@@ -30,7 +30,8 @@
     "prepare:playwright-tests": "docker compose -f docker-compose.tests.yml -p test-revisium-playwright up --build --wait -d && npm run prisma:migrate:deploy && npm run prisma:generate && npm run seed && npm run copy:admin",
     "playwright-tests": "npx playwright test",
     "playwright-tests:ui": "npx playwright test --ui",
-    "playwright-tests:generate-api": "npx swagger-typescript-api generate -p http://localhost:8080/api-json -o e2e/utils/api -n revisium.ts"
+    "playwright-tests:generate-api": "npx swagger-typescript-api generate -p http://localhost:8080/api-json -o e2e/utils/api -n revisium.ts",
+    "codegen": "npx playwright codegen"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.3",
