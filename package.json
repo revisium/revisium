@@ -1,6 +1,6 @@
 {
   "name": "revisium",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Revisium is a tool (UI/API) inspired by JSON (JSON Schema) and Git, designed to provide a flexible and low-level headless CMS solution.",
   "private": true,
   "homepage": "https://revisium.io",
@@ -40,8 +40,8 @@
     "@nestjs/platform-express": "^10.3.3",
     "@nestjs/swagger": "^7.4.2",
     "@revisium/admin": "^1.0.1",
-    "@revisium/core": "^1.0.1",
-    "@revisium/endpoint": "^1.1.0",
+    "@revisium/core": "^1.0.2",
+    "@revisium/endpoint": "^1.2.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1"
   },
