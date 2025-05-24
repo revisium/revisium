@@ -1,4 +1,4 @@
-FROM node:22.9.0 as builder
+FROM node:22.9.0 AS builder
 
 ENV NODE_ENV=development
 
@@ -28,8 +28,6 @@ COPY --from=builder /home/app/node_modules/@revisium/core/dist/prisma/seed/roles
 COPY --from=builder /home/app/node_modules/ ./node_modules/
 
 COPY --from=builder /home/app/client/ ./client
-
-ENV IS_BUILD=true
 
 CMD ["npm", "run", "start:prod"]
 
