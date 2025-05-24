@@ -1,14 +1,21 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  INestApplication,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'src/app.module';
-import { InMemoryServer } from '@revisium/core';
 import * as packageJson from '../package.json';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      json: true,
+      colors: true,
+    }),
+  });
 
   app.enableCors();
 
@@ -19,13 +26,10 @@ async function bootstrap() {
   );
 
   const config = app.get(ConfigService);
-  const port = config.get('PORT') || 8080;
+  const port = config.get('PORT') ?? 8080;
 
   initSwagger(app);
 
-  app.connectMicroservice<MicroserviceOptions>({
-    strategy: new InMemoryServer(),
-  });
   await app.startAllMicroservices();
 
   await app.listen(port);
