@@ -6,7 +6,7 @@ services:
         condition: service_healthy
       db:
         condition: service_started
-    image: revisium/revisium-core:v1.0.0
+    image: revisium/revisium-core:v1.2.0
     environment:
       DATABASE_URL: postgresql://revisium:password@db:5432/revisium-dev?schema=public
       ENDPOINT_PORT: 6379
@@ -37,7 +37,7 @@ services:
     depends_on:
       revisium-core:
         condition: service_healthy
-    image: revisium/revisium-endpoint:v1.1.0
+    image: revisium/revisium-endpoint:v1.3.0
     ports:
       - 8081:8080
     environment:
@@ -55,7 +55,7 @@ services:
     depends_on:
       revisium-core:
         condition: service_healthy
-    image: revisium/revisium-admin:v1.0.0
+    image: revisium/revisium-admin:v1.3.0
     ports:
       - 8080:8080
     environment:
