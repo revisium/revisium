@@ -2,7 +2,7 @@ const { dirname } = require('path');
 const globals = require('globals');
 const js = require('@eslint/js');
 const tseslint = require('typescript-eslint');
-const prettier = require('eslint-config-prettier');
+const prettierPlugin = require('eslint-plugin-prettier');
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 module.exports = [
@@ -41,8 +41,12 @@ module.exports = [
       '@typescript-eslint/ban-ts-comment': 'off',
     },
   },
-  prettier,
   {
-    ignores: ['src/__generated__/sql/**'],
+    plugins: {
+      prettier: prettierPlugin,
+    },
+    rules: {
+      'prettier/prettier': 'error',
+    },
   },
 ];
