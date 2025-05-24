@@ -14,8 +14,8 @@ import { join } from 'path';
     ConfigModule.forRoot({
       envFilePath: ['.env', '.env.production', '.env.development'],
     }),
-    CoreModule,
-    EndpointMicroserviceModule,
+    CoreModule.forRoot({ mode: 'monolith' }),
+    EndpointMicroserviceModule.forRoot({ mode: 'monolith' }),
     MetricsApiModule,
     GracefulShutdownModule,
     AdminModule.forRoot({
