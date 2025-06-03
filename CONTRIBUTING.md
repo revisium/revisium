@@ -53,7 +53,13 @@ Follow these steps to run the entire Revisium stack on your machine.
    cp .env.example .env
    npm install
    ```
-3. Start the endpoint service in debug mode:
+
+3. Generate prisma client:
+   ```bash
+   npx prisma generate
+   ```
+
+4. Start the endpoint service in debug mode:
    ```bash
    npm run start:debug
    ```
