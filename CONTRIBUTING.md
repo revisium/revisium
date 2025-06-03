@@ -34,6 +34,7 @@ Follow these steps to run the entire Revisium stack on your machine.
 5. Apply database migrations and seed initial data:
    ```bash
    npm run prisma:migrate:deploy
+   npm run prisma:generate
    npm run seed
    ```
 6. Launch the core service in debug mode:
@@ -53,7 +54,13 @@ Follow these steps to run the entire Revisium stack on your machine.
    cp .env.example .env
    npm install
    ```
-3. Start the endpoint service in debug mode:
+
+3. Generate prisma client:
+   ```bash
+   npm run prisma:generate
+   ```
+
+4. Start the endpoint service in debug mode:
    ```bash
    npm run start:debug
    ```
