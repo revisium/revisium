@@ -10,7 +10,7 @@ services:
     pull_policy: always
     depends_on:
       - db
-    image: revisium/revisium:v1.5.0-alpha.1
+    image: revisium/revisium:v1.5.0-alpha.4
     ports:
       - 8080:8080
       - 5555:5555
@@ -24,3 +24,9 @@ services:
       #      S3_BUCKET: ''
       #      S3_ACCESS_KEY_ID: ''
       #      S3_SECRET_ACCESS_KEY: ''
+      #      GRAPHQL_HIDE_NODE_TYPES: false
+      #      GRAPHQL_HIDE_FLAT_TYPES: false
+      #      GRAPHQL_FLAT_POSTFIX: "Flat"
+      #      GRAPHQL_NODE_POSTFIX: ""
+      #      GRAPHQL_PREFIX_FOR_TABLES: ""
+      #      GRAPHQL_PREFIX_FOR_COMMON: ""
