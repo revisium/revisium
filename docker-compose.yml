@@ -24,8 +24,8 @@ services:
       #      S3_BUCKET: ''
       #      S3_ACCESS_KEY_ID: ''
       #      S3_SECRET_ACCESS_KEY: ''
-      #      GRAPHQL_HIDE_NODE_TYPES: true
-      #      GRAPHQL_HIDE_FLAT_TYPES: true
+      #      GRAPHQL_HIDE_NODE_TYPES: false
+      #      GRAPHQL_HIDE_FLAT_TYPES: false
       #      GRAPHQL_FLAT_POSTFIX: "Flat"
       #      GRAPHQL_NODE_POSTFIX: ""
       #      GRAPHQL_PREFIX_FOR_TABLES: ""
