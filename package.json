@@ -36,9 +36,9 @@
     "@nestjs/common": "^11.1.3",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.3",
-    "@revisium/admin": "^1.7.2",
-    "@revisium/core": "^2.0.0-alpha.1",
-    "@revisium/endpoint": "^1.6.0-alpha.4"
+    "@revisium/admin": "^2.0.0",
+    "@revisium/core": "^2.0.0",
+    "@revisium/endpoint": "^2.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.7",
