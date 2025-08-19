@@ -2,6 +2,8 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
 name: Server CI
+permissions:
+  contents: read
 
 on:
   push:
@@ -23,7 +25,7 @@ jobs:
           submodules: true
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@8c71dc039c2dd71d3821e89a2b58ecc7fee6ced9 #SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -33,10 +35,8 @@ jobs:
           cache: 'npm'
 
       - name: Create test .env
-        uses: canastro/copy-file-action@master
-        with:
-          source: '.env.example'
-          target: '.env'
+        run: cp .env.example .env
+
       - run: npm ci
       - run: npm run prisma:generate
       - run: npm run lint:ci
