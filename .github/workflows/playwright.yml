@@ -26,10 +26,7 @@ jobs:
           cache: 'npm'
 
       - name: Create test .env
-        uses: canastro/copy-file-action@master
-        with:
-          source: '.env.e2e-tests'
-          target: '.env'
+        run: cp .env.e2e-tests .env
 
       - name: Get Playwright version
         id: playwright-version
@@ -72,4 +69,6 @@ jobs:
     needs: test
     if: ${{ github.event_name == 'push' && needs.test.result == 'success' }}
     uses: ./.github/workflows/build.yml
-    secrets: inherit
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
