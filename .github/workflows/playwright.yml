@@ -76,6 +76,9 @@ jobs:
   deploy:
     needs: [test, build]
     if: ${{ github.event_name == 'push' && needs.test.result == 'success' && needs.build.result == 'success' }}
+    permissions:
+      contents: read
+      deployments: write
     uses: ./.github/workflows/deploy.yml
     secrets:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
