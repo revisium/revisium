@@ -12,8 +12,6 @@ on:
         required: true
       KUBE_APP_URL:
         required: true
-    branches:
-      - master
 
 env:
   KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
