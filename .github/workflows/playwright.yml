@@ -72,3 +72,13 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
+
+  deploy:
+    needs: build
+    if: ${{ github.event_name == 'push' && needs.test.result == 'success' }}
+    uses: ./.github/workflows/deploy.yml
+    secrets:
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+      KUBE_SERVICE_NAME: ${{ secrets.KUBE_SERVICE_NAME }}
+      KUBE_APP_URL: ${{ secrets.KUBE_APP_URL }}
