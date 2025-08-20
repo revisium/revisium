@@ -13,6 +13,10 @@ on:
       KUBE_APP_URL:
         required: true
 
+permissions:
+  contents: read
+  deployments: write
+
 env:
   KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
   KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
