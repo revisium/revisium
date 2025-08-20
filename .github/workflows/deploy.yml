@@ -2,19 +2,26 @@ name: Deploy
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
-    branches:
-      - master
+  workflow_call:
+    secrets:
+      KUBE_CONFIG:
+        required: true
+      KUBE_NAMESPACE:
+        required: true
+      KUBE_SERVICE_NAME:
+        required: true
+      KUBE_APP_URL:
+        required: true
+
+permissions:
+  contents: read
+  deployments: write
 
 env:
-  IMAGE_NAME: ${{ github.event.repository.name }}
+  KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
   KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
   KUBE_SERVICE_NAME: ${{ secrets.KUBE_SERVICE_NAME }}
   KUBE_APP_URL: ${{ secrets.KUBE_APP_URL }}
-  KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
 jobs:
   deploy:
@@ -57,13 +64,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-              await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              deployment_id: ${{ steps.deployment.outputs.result }},
-              state: 'in_progress',
-              description: 'Deployment in progress'
-              });
+            await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: ${{ steps.deployment.outputs.result }},
+            state: 'in_progress',
+            description: 'Deployment in progress'
+            });
 
       - name: Install kubectl
         uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede #azure/setup-kubectl@v4.0.1
