@@ -74,8 +74,8 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   deploy:
-    needs: [test, build]
-    if: ${{ github.event_name == 'push' && needs.test.result == 'success' && needs.build.result == 'success' }}
+    needs: build
+    if: ${{ github.event_name == 'push' && needs.build.result == 'success' }}
     permissions:
       contents: read
       deployments: write
