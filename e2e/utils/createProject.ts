@@ -14,4 +14,5 @@ export const createProject = async ({
   await page.getByTestId('create-project-name-input').click();
   await page.getByTestId('create-project-name-input').fill(projectName);
   await page.getByTestId('create-project-approve-button').click();
+  await page.waitForURL(/admin.*master/);
 };
