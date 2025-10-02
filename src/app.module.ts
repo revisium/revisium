@@ -7,7 +7,7 @@ import {
   MetricsApiModule,
 } from '@revisium/core';
 import { EndpointMicroserviceModule } from '@revisium/endpoint';
-import { join } from 'path';
+import { join } from 'node:path';
 
 @Module({
   imports: [
