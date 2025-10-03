@@ -96,7 +96,7 @@ test.describe('Tables - CRUD Operations via API', () => {
         path: '/properties/total',
         value: {
           type: 'string',
-          default: '0',
+          default: '',
         },
       },
     ]);
