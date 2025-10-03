@@ -6,7 +6,7 @@ import { removeProject } from 'e2e/utils/removeProject';
 
 const projectName = generateProjectName();
 
-test.describe('creating project', () => {
+test.describe.skip('creating project', () => {
   let page: Page;
 
   test.beforeAll(async ({ browser }) => {

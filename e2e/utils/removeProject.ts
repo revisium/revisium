@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page } from '@playwright/test';
 
 export const removeProject = async ({
   projectName,
@@ -7,7 +7,7 @@ export const removeProject = async ({
   page: Page;
   projectName: string;
 }) => {
-  await page.goto("/");
+  await page.goto('/');
   await page.getByTestId(`project-${projectName}`).hover();
   await page.getByTestId(`remove-project-${projectName}-button`).click();
 };

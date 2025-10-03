@@ -1,4 +1,4 @@
-const { dirname } = require('path');
+const { dirname } = require('node:path');
 const globals = require('globals');
 const js = require('@eslint/js');
 const tseslint = require('typescript-eslint');
