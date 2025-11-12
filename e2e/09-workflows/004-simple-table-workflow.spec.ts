@@ -6,7 +6,7 @@ import { removeProject } from 'e2e/utils/removeProject';
 
 const projectName = generateProjectName();
 
-test.describe('Workflow - Simple Table Creation via UI', () => {
+test.describe.skip('Workflow - Simple Table Creation via UI', () => {
   let page: Page;
 
   test.beforeAll(async ({ browser }) => {

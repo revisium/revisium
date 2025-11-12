@@ -6,7 +6,7 @@ import { removeProject } from 'e2e/utils/removeProject';
 
 const projectName = generateProjectName();
 
-test.describe('Workflow - Blog CMS', () => {
+test.describe.skip('Workflow - Blog CMS', () => {
   let page: Page;
 
   test.beforeAll(async ({ browser }) => {

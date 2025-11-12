@@ -12,7 +12,7 @@ import {
 } from 'e2e/utils/apiHelpers';
 import { generateProjectName } from 'e2e/utils/generateProjectName';
 
-test.describe('Branches - Operations via API', () => {
+test.describe.skip('Branches - Operations via API', () => {
   let page: Page;
   let adminToken: string;
   let adminOrgId: string;

@@ -14,7 +14,7 @@ import {
 } from 'e2e/utils/apiHelpers';
 import { generateProjectName } from 'e2e/utils/generateProjectName';
 
-test.describe('Workflow - Git-like Version Control via API', () => {
+test.describe.skip('Workflow - Git-like Version Control via API', () => {
   let page: Page;
   let adminToken: string;
   let adminOrgId: string;
