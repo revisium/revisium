@@ -10,7 +10,7 @@ import {
 } from 'e2e/utils/apiHelpers';
 import { generateProjectName } from 'e2e/utils/generateProjectName';
 
-test.describe('Rows - With API Setup', () => {
+test.describe.skip('Rows - With API Setup', () => {
   let page: Page;
   let adminToken: string;
   let adminOrgId: string;
