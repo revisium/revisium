@@ -1,4 +1,4 @@
-FROM node:22.9.0 AS builder
+FROM node:24.11.1 AS builder
 
 ENV NODE_ENV=development
 
@@ -13,7 +13,7 @@ COPY . .
 
 RUN npm run build
 
-FROM  node:22.9.0-bullseye-slim
+FROM  node:24.11.1-bullseye-slim
 
 ENV NODE_ENV=production
 
