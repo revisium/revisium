@@ -38,6 +38,5 @@ jobs:
         run: cp .env.example .env
 
       - run: npm ci
-      - run: npm run prisma:generate
       - run: npm run lint:ci
       - run: npm run tsc

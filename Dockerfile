@@ -11,7 +11,6 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run prisma:generate
 RUN npm run build
 
 FROM  node:22.9.0-bullseye-slim
