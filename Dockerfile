@@ -20,6 +20,7 @@ ENV NODE_ENV=production
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /home/app/package*.json ./
+COPY --from=builder /home/app/prisma.config.ts ./
 COPY --from=builder /home/app/node_modules/@revisium/core/dist/prisma/ ./prisma/
 COPY --from=builder /home/app/dist/ ./dist/
 COPY --from=builder /home/app/node_modules/@revisium/core/dist/prisma/seed/permissions ./dist/revisium-core/prisma/seed/permissions
