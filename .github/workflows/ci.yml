@@ -31,13 +31,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.11.0
+          node-version: 24.11.1
           cache: 'npm'
 
       - name: Create test .env
         run: cp .env.example .env
 
       - run: npm ci
-      - run: npm run prisma:generate
       - run: npm run lint:ci
       - run: npm run tsc
