@@ -42,7 +42,7 @@
     "@nestjs/platform-express": "^11.1.3",
     "@nestjs/swagger": "^11.2.3",
     "@revisium/admin": "^2.1.0-alpha.6",
-    "@revisium/core": "^2.5.0-alpha.8",
+    "@revisium/core": "^2.5.0-alpha.9",
     "@revisium/endpoint": "^2.2.0-alpha.3",
     "graphql": "^16.12.0",
     "graphql-scalars": "^1.24.2"
