@@ -31,6 +31,8 @@ COPY --from=builder /home/app/node_modules/ ./node_modules/
 
 COPY --from=builder /home/app/client/ ./client
 
+RUN chown -R node:node /home/app
+
 USER node
 
 CMD ["npm", "run", "start:prod"]
