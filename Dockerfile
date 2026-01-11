@@ -19,6 +19,8 @@ ENV NODE_ENV=production
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /home/app
+
 COPY --from=builder /home/app/package*.json ./
 COPY --from=builder /home/app/prisma.config.ts ./
 COPY --from=builder /home/app/node_modules/@revisium/core/dist/prisma/ ./prisma/
