@@ -1,0 +1,44 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+client
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Environment files (sensitive)
+.env
+.env.*
+!.env.example
+
+# Test files
+coverage
+e2e
+test
+*.spec.ts
+jest*.json
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github
+
+# Documentation
+*.md
+LICENSE
+
+# Misc
+.DS_Store
+*.log

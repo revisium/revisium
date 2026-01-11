@@ -6,12 +6,13 @@ permissions:
 
 on:
   workflow_dispatch:
-  push:
-    branches: [master]
-    tags:
-      - 'v*'
-  pull_request:
-    branches: [master]
+  # Temporarily disabled - uncomment to enable on push/PR
+  # push:
+  #   branches: [master]
+  #   tags:
+  #     - 'v*'
+  # pull_request:
+  #   branches: [master]
 
 jobs:
   test:
