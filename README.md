@@ -42,6 +42,10 @@ Once the services are up and running, you can access the Revisium application us
 - Username: admin
 - Password: admin
 
+## Configuration
+
+See [ENV.md](./ENV.md) for all environment variables.
+
 ## Key Features
 
 - SaaS or Self-Hosted: Flexible deployment options to suit your infrastructure needs.
