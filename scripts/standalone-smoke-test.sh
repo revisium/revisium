@@ -25,18 +25,21 @@ cleanup() {
 trap cleanup EXIT
 
 echo "=== Standalone Smoke Test ==="
+echo "  TEMP_DIR=$TEMP_DIR"
+echo "  DATA_DIR=$DATA_DIR"
 
 # 1. Pack the standalone package
 echo "--- Packing standalone ---"
 cd "${PROJECT_DIR}/standalone"
-TARBALL=$(npm pack --pack-destination "$TEMP_DIR" 2>/dev/null | tail -1)
+ls package.json > /dev/null
+TARBALL=$(npm pack --pack-destination "$TEMP_DIR" | tail -1)
 echo "Created: $TARBALL"
 
 # 2. Install in temp directory
 echo "--- Installing in temp dir ---"
 cd "$TEMP_DIR"
 npm init -y > /dev/null 2>&1
-npm install "${TEMP_DIR}/${TARBALL}" > /dev/null 2>&1
+npm install "${TEMP_DIR}/${TARBALL}"
 echo "Installed successfully"
 
 # 3. Start the server
@@ -152,7 +155,7 @@ else
 fi
 
 # Create table
-assert_status "Create table" POST "${BASE_URL}/api/revision/${REVISION_ID}/tables" 200 \
+assert_status "Create table" POST "${BASE_URL}/api/revision/${REVISION_ID}/tables" 201 \
   -H "Content-Type: application/json" \
   -d '{
     "tableId": "articles",
@@ -169,7 +172,7 @@ assert_status "Create table" POST "${BASE_URL}/api/revision/${REVISION_ID}/table
 
 # Create row
 assert_status "Create row" POST \
-  "${BASE_URL}/api/revision/${REVISION_ID}/tables/articles/create-row" 200 \
+  "${BASE_URL}/api/revision/${REVISION_ID}/tables/articles/create-row" 201 \
   -H "Content-Type: application/json" \
   -d '{
     "rowId": "article-1",
