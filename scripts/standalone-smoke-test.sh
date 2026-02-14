@@ -142,7 +142,7 @@ assert_status "GET /api returns 200" GET "${BASE_URL}/api" 200
 # Create project
 PROJECT_RESPONSE=$(curl -sf -X POST "${BASE_URL}/api/organization/${ORG}/projects" \
   -H "$JSON_CONTENT_TYPE" \
-  -d '{"projectName":"smoke-test"}')
+  -d '{"projectName":"smoke-test"}') || true
 PROJECT_ID=$(echo "$PROJECT_RESPONSE" | json_extract ".id") || PROJECT_ID=""
 if [[ -n "$PROJECT_ID" ]]; then
   echo "  PASS: Create project (id=$PROJECT_ID)"
@@ -154,7 +154,7 @@ else
 fi
 
 # Get draft revision id
-DRAFT_RESPONSE=$(curl -sf "${BASE_URL}/api/organization/${ORG}/projects/smoke-test/branches/master/draft-revision")
+DRAFT_RESPONSE=$(curl -sf "${BASE_URL}/api/organization/${ORG}/projects/smoke-test/branches/master/draft-revision") || true
 REVISION_ID=$(echo "$DRAFT_RESPONSE" | json_extract ".id") || REVISION_ID=""
 if [[ -n "$REVISION_ID" ]]; then
   echo "  PASS: Get draft revision (id=$REVISION_ID)"
