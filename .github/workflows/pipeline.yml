@@ -17,6 +17,10 @@ on:
         description: 'Publish to npm'
         type: boolean
         default: false
+      deploy:
+        description: 'Deploy to Kubernetes'
+        type: boolean
+        default: false
 
 jobs:
   ci:
@@ -133,7 +137,9 @@ jobs:
 
   deploy:
     needs: docker
-    if: github.event_name == 'push'
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.deploy)
     permissions:
       contents: read
       deployments: write

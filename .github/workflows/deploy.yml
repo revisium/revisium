@@ -30,7 +30,7 @@ jobs:
       contents: read
       deployments: write
 
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event_name == 'push' }}
 
     steps:
       - name: Checkout repository
