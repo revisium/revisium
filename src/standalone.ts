@@ -10,11 +10,31 @@ import { NestFactory } from '@nestjs/core';
 import { initSwagger } from '@revisium/core';
 import { AppModule } from './app.module';
 
+let pgInstance: { stop(): Promise<void> } | null = null;
+
 interface StandaloneArgs {
   port: number;
   pgPort: number;
   dataDir: string;
   auth: boolean;
+}
+
+function nextArg(argv: string[], i: number, flag: string): string {
+  const value = argv[i + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`${flag} requires a value`);
+  }
+  return value;
+}
+
+function parsePort(value: string, flag: string): number {
+  const port = Number.parseInt(value, 10);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(
+      `${flag} must be a valid port number (1-65535), got "${value}"`,
+    );
+  }
+  return port;
 }
 
 function parseArgs(argv: string[]): StandaloneArgs {
@@ -28,13 +48,16 @@ function parseArgs(argv: string[]): StandaloneArgs {
   for (let i = 2; i < argv.length; i++) {
     switch (argv[i]) {
       case '--port':
-        args.port = parseInt(argv[++i], 10);
+        args.port = parsePort(nextArg(argv, i, '--port'), '--port');
+        i++;
         break;
       case '--pg-port':
-        args.pgPort = parseInt(argv[++i], 10);
+        args.pgPort = parsePort(nextArg(argv, i, '--pg-port'), '--pg-port');
+        i++;
         break;
       case '--data':
-        args.dataDir = resolve(argv[++i]);
+        args.dataDir = resolve(nextArg(argv, i, '--data'));
+        i++;
         break;
       case '--auth':
         args.auth = true;
@@ -85,6 +108,7 @@ async function main() {
     await pg.initialise();
   }
   await pg.start();
+  pgInstance = pg;
 
   if (isFirstRun) {
     await pg.createDatabase('revisium');
@@ -158,10 +182,10 @@ async function main() {
     console.log(`  URL:            http://localhost:${args.port}`);
     console.log(`  REST API:       http://localhost:${args.port}/api`);
     console.log(`  Data directory: ${args.dataDir}`);
-    if (!args.auth) {
-      console.log('  Auth:           disabled (use --auth to enable)');
-    } else {
+    if (args.auth) {
       console.log('  Auth:           enabled (admin/admin)');
+    } else {
+      console.log('  Auth:           disabled (use --auth to enable)');
     }
     console.log('');
   }, 2000);
@@ -185,7 +209,14 @@ async function main() {
   process.on('SIGTERM', shutdown);
 }
 
-main().catch((error) => {
+main().catch(async (error) => {
   console.error('Failed to start Revisium:', error);
+  if (pgInstance) {
+    try {
+      await pgInstance.stop();
+    } catch {
+      // ignore stop errors during cleanup
+    }
+  }
   process.exit(1);
 });

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { resolve } = require('path');
-const { spawn } = require('child_process');
+const { resolve } = require('node:path');
+const { spawn } = require('node:child_process');
 
 const packageRoot = resolve(__dirname, '..');
 

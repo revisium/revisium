@@ -80,7 +80,7 @@ const coreDeps = { ...corePkg.dependencies, ...corePkg.devDependencies };
 template.version = root.version;
 template.dependencies = {
   '@nestjs/microservices': coreDeps['@nestjs/microservices'],
-  'embedded-postgres': deps['embedded-postgres'],
+  'embedded-postgres': '18.1.0-beta.16',
   'prisma': deps['prisma'],
   'sharp': coreDeps['sharp'],
   'bcrypt': coreDeps['bcrypt'],

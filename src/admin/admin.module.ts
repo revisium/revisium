@@ -1,6 +1,7 @@
 import {
   DynamicModule,
   Inject,
+  Logger,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -8,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { HttpAdapterHost } from '@nestjs/core';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as express from 'express';
 import { Request, Response, NextFunction } from 'express';
@@ -38,9 +39,20 @@ export class AdminModule implements NestModule, OnModuleInit {
     };
   }
 
+  private readonly logger = new Logger(AdminModule.name);
+
   onModuleInit() {
     const app = this.httpAdapterHost.httpAdapter.getInstance();
-    const indexHtml = readFileSync(join(this.rootPath, 'index.html'), 'utf-8');
+    const indexPath = join(this.rootPath, 'index.html');
+
+    if (!existsSync(indexPath)) {
+      this.logger.warn(
+        `Admin UI not found at ${this.rootPath} — skipping static file serving`,
+      );
+      return;
+    }
+
+    const indexHtml = readFileSync(indexPath, 'utf-8');
 
     app.use(
       express.static(this.rootPath, {
@@ -51,7 +63,7 @@ export class AdminModule implements NestModule, OnModuleInit {
       }),
     );
 
-    app.get('{*any}', (req: Request, res: Response, next: NextFunction) => {
+    app.get('/{*any}', (req: Request, res: Response, next: NextFunction) => {
       const skipPrefixes = [
         '/api',
         '/graphql',
