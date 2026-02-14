@@ -39,6 +39,14 @@ lerna-debug.log*
 .env
 .env.development.local
 
+# Standalone build artifacts
+/standalone/dist
+/standalone/client
+/standalone/prisma
+/standalone/templates
+/standalone/package.json
+/standalone/*.tgz
+
 # Playwright
 /test-results/
 /playwright-report/

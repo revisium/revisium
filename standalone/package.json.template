@@ -1,0 +1,31 @@
+{
+  "name": "@revisium/standalone",
+  "description": "Revisium with embedded PostgreSQL — zero-dependency headless CMS with Git-like version control",
+  "homepage": "https://revisium.io",
+  "license": "Apache-2.0",
+  "author": "Anton Kashirov",
+  "bin": {
+    "revisium-standalone": "bin/revisium-standalone.js"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "client/",
+    "prisma/",
+    "templates/",
+    "prisma.config.ts"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "revisium",
+    "headless-cms",
+    "embedded-postgres",
+    "standalone",
+    "json-schema",
+    "version-control",
+    "ai-memory",
+    "agent-memory"
+  ]
+}
