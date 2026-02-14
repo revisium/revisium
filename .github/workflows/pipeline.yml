@@ -1,0 +1,120 @@
+name: Pipeline
+
+permissions:
+  contents: read
+  id-token: write
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      docker:
+        description: 'Build and push Docker image'
+        type: boolean
+        default: false
+      npm-publish:
+        description: 'Publish to npm'
+        type: boolean
+        default: false
+
+jobs:
+  build-standalone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.1
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run standalone:build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: standalone-package
+          path: standalone/
+          retention-days: 1
+
+  smoke-test:
+    needs: build-standalone
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.1
+      - uses: actions/download-artifact@v4
+        with:
+          name: standalone-package
+          path: standalone/
+      - name: Run smoke tests
+        run: bash scripts/standalone-smoke-test.sh
+
+  docker:
+    needs: smoke-test
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' && inputs.docker)
+    uses: ./.github/workflows/build.yml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  npm-publish:
+    needs: smoke-test
+    if: >-
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' && inputs.npm-publish)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: standalone-package
+          path: standalone/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.1
+          registry-url: 'https://registry.npmjs.org'
+      - name: Determine npm tag
+        id: npm-tag
+        working-directory: standalone
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" =~ -alpha ]]; then
+            echo "tag=alpha" >> $GITHUB_OUTPUT
+          elif [[ "$VERSION" =~ -beta ]]; then
+            echo "tag=beta" >> $GITHUB_OUTPUT
+          elif [[ "$VERSION" =~ -rc ]]; then
+            echo "tag=rc" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+      - run: npm publish --provenance --access public --tag ${{ steps.npm-tag.outputs.tag }}
+        working-directory: standalone
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  deploy:
+    needs: docker
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      deployments: write
+    uses: ./.github/workflows/deploy.yml
+    secrets:
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+      KUBE_SERVICE_NAME: ${{ secrets.KUBE_SERVICE_NAME }}
+      KUBE_APP_URL: ${{ secrets.KUBE_APP_URL }}
