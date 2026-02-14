@@ -19,6 +19,28 @@ on:
         default: false
 
 jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@8c71dc039c2dd71d3821e89a2b58ecc7fee6ced9
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.1
+          cache: 'npm'
+      - run: cp .env.example .env
+      - run: npm ci
+      - run: npm run lint:ci
+      - run: npm run tsc
+
   build-standalone:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -41,7 +63,7 @@ jobs:
           retention-days: 1
 
   smoke-test:
-    needs: build-standalone
+    needs: [ci, build-standalone]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
