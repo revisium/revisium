@@ -1,6 +1,6 @@
 {
   "name": "revisium",
-  "version": "2.5.1",
+  "version": "2.6.0-alpha.7",
   "description": "Revisium is a tool (UI/API) inspired by JSON (JSON Schema) and Git, designed to provide a flexible and low-level headless CMS solution.",
   "private": true,
   "homepage": "https://revisium.io",
@@ -29,26 +29,21 @@
     "prepare:playwright-tests": "docker compose -f docker-compose.tests.yml -p test-revisium-playwright up --build --wait -d && npm run prisma:migrate:deploy && npm run seed && npm run copy:admin",
     "playwright-tests": "npx playwright test",
     "playwright-tests:ui": "npx playwright test --ui",
-    "playwright-tests:generate-api": "npx swagger-typescript-api generate -p http://localhost:8080/api-json -o e2e/utils/api -n revisium.ts"
+    "playwright-tests:generate-api": "npx swagger-typescript-api generate -p http://localhost:8080/api-json -o e2e/utils/api -n revisium.ts",
+    "standalone:build": "npm run build && bash standalone/build.sh"
   },
   "dependencies": {
-    "@apollo/server": "^5.1.0",
-    "@as-integrations/express5": "^1.1.2",
-    "@nestjs/apollo": "^13.2.3",
     "@nestjs/common": "^11.1.11",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.11",
-    "@nestjs/graphql": "^13.2.3",
     "@nestjs/platform-express": "^11.1.11",
     "@nestjs/swagger": "^11.2.4",
-    "@revisium/admin": "^2.2.1",
-    "@revisium/core": "^2.6.0",
-    "@revisium/endpoint": "^2.3.0",
-    "graphql": "^16.12.0",
-    "graphql-scalars": "^1.25.0"
+    "@revisium/admin": "^2.4.0-alpha.1",
+    "@revisium/core": "^2.8.0-alpha.3",
+    "@revisium/endpoint": "^2.5.0-alpha.1",
+    "graphql": "^16.12.0"
   },
   "devDependencies": {
-    "patch-package": "^8.0.0",
     "@nestjs/cli": "^11.0.14",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.1.11",
@@ -75,6 +70,10 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.52.0"
+  },
+  "overrides": {
+    "hono": "4.11.9",
+    "lodash": "4.17.23"
   },
   "jest": {
     "moduleFileExtensions": [
