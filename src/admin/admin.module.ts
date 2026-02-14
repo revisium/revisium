@@ -70,6 +70,7 @@ export class AdminModule implements NestModule, OnModuleInit {
         '/mcp',
         '/metrics',
         '/endpoint',
+        '/env.js',
       ];
       if (skipPrefixes.some((prefix) => req.path.startsWith(prefix))) {
         return next();

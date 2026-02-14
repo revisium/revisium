@@ -4,7 +4,7 @@ import { createServer } from 'node:net';
 import { resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { initSwagger } from '@revisium/core';
@@ -45,22 +45,31 @@ function parseArgs(argv: string[]): StandaloneArgs {
     auth: false,
   };
 
-  for (let i = 2; i < argv.length; i++) {
-    switch (argv[i]) {
+  const tokens = argv.slice(2);
+  let idx = 0;
+
+  while (idx < tokens.length) {
+    const token = tokens[idx];
+
+    switch (token) {
       case '--port':
-        args.port = parsePort(nextArg(argv, i, '--port'), '--port');
-        i++;
+        args.port = parsePort(nextArg(tokens, idx, '--port'), '--port');
+        idx += 2;
         break;
       case '--pg-port':
-        args.pgPort = parsePort(nextArg(argv, i, '--pg-port'), '--pg-port');
-        i++;
+        args.pgPort = parsePort(nextArg(tokens, idx, '--pg-port'), '--pg-port');
+        idx += 2;
         break;
       case '--data':
-        args.dataDir = resolve(nextArg(argv, i, '--data'));
-        i++;
+        args.dataDir = resolve(nextArg(tokens, idx, '--data'));
+        idx += 2;
         break;
       case '--auth':
         args.auth = true;
+        idx++;
+        break;
+      default:
+        idx++;
         break;
     }
   }
@@ -129,14 +138,14 @@ async function main() {
   );
 
   console.log('Running database migrations...');
-  execSync(`node "${prismaPath}" migrate deploy`, {
+  execFileSync(process.execPath, [prismaPath, 'migrate', 'deploy'], {
     cwd: packageRoot,
     env: { ...process.env, DATABASE_URL },
     stdio: 'inherit',
   });
 
   console.log('Running seed...');
-  execSync(`node --experimental-require-module "${seedPath}"`, {
+  execFileSync(process.execPath, ['--experimental-require-module', seedPath], {
     cwd: packageRoot,
     env: { ...process.env, DATABASE_URL },
     stdio: 'inherit',
