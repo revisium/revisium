@@ -1,9 +1,5 @@
 name: Pipeline
 
-permissions:
-  contents: read
-  id-token: write
-
 on:
   push:
     branches: [master]
@@ -26,6 +22,8 @@ jobs:
   build-standalone:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,6 +44,8 @@ jobs:
     needs: build-standalone
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -6,6 +6,7 @@ PG_PORT=5440
 BASE_URL="http://localhost:${PORT}"
 TIMEOUT=120
 ORG=admin
+JSON_CONTENT_TYPE="Content-Type: application/json"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -21,6 +22,7 @@ cleanup() {
     wait "$SERVER_PID" 2>/dev/null || true
   fi
   rm -rf "$TEMP_DIR" "$DATA_DIR"
+  return 0
 }
 trap cleanup EXIT
 
@@ -69,7 +71,13 @@ PASS=0
 FAIL=0
 
 json_extract() {
-  node -p "JSON.parse(require('fs').readFileSync(0,'utf8'))$1" 2>/dev/null
+  local field="$1"
+  node -e "
+    const v = JSON.parse(require('fs').readFileSync(0,'utf8'))${field};
+    if (v == null) process.exit(1);
+    process.stdout.write(String(v));
+  " 2>/dev/null
+  return $?
 }
 
 assert_status() {
@@ -84,13 +92,14 @@ assert_status() {
     echo "  FAIL: $desc (expected HTTP $expected, got $status)"
     FAIL=$((FAIL + 1))
   fi
+  return 0
 }
 
 assert_json() {
   local desc="$1" expr="$2"
   shift 2
   local body
-  body=$(curl -sf "$@") || { echo "  FAIL: $desc (curl failed)"; FAIL=$((FAIL + 1)); return; }
+  body=$(curl -sf "$@") || { echo "  FAIL: $desc (curl failed)"; FAIL=$((FAIL + 1)); return 0; }
   local result
   result=$(echo "$body" | node -e "
     let d=''; process.stdin.on('data',c=>d+=c); process.stdin.on('end',()=>{
@@ -106,13 +115,14 @@ assert_json() {
     echo "  Response: $(echo "$body" | head -c 200)"
     FAIL=$((FAIL + 1))
   fi
+  return 0
 }
 
 assert_contains() {
   local desc="$1" substring="$2"
   shift 2
   local body
-  body=$(curl -sf "$@") || { echo "  FAIL: $desc (curl failed)"; FAIL=$((FAIL + 1)); return; }
+  body=$(curl -sf "$@") || { echo "  FAIL: $desc (curl failed)"; FAIL=$((FAIL + 1)); return 0; }
   if echo "$body" | grep -q "$substring"; then
     echo "  PASS: $desc"
     PASS=$((PASS + 1))
@@ -121,6 +131,7 @@ assert_contains() {
     echo "  Response: $(echo "$body" | head -c 200)"
     FAIL=$((FAIL + 1))
   fi
+  return 0
 }
 
 echo "--- Running tests ---"
@@ -130,7 +141,7 @@ assert_status "GET /api returns 200" GET "${BASE_URL}/api" 200
 
 # Create project
 PROJECT_RESPONSE=$(curl -sf -X POST "${BASE_URL}/api/organization/${ORG}/projects" \
-  -H "Content-Type: application/json" \
+  -H "$JSON_CONTENT_TYPE" \
   -d '{"projectName":"smoke-test"}')
 PROJECT_ID=$(echo "$PROJECT_RESPONSE" | json_extract ".id") || PROJECT_ID=""
 if [[ -n "$PROJECT_ID" ]]; then
@@ -156,7 +167,7 @@ fi
 
 # Create table
 assert_status "Create table" POST "${BASE_URL}/api/revision/${REVISION_ID}/tables" 201 \
-  -H "Content-Type: application/json" \
+  -H "$JSON_CONTENT_TYPE" \
   -d '{
     "tableId": "articles",
     "schema": {
@@ -173,7 +184,7 @@ assert_status "Create table" POST "${BASE_URL}/api/revision/${REVISION_ID}/table
 # Create row
 assert_status "Create row" POST \
   "${BASE_URL}/api/revision/${REVISION_ID}/tables/articles/create-row" 201 \
-  -H "Content-Type: application/json" \
+  -H "$JSON_CONTENT_TYPE" \
   -d '{
     "rowId": "article-1",
     "data": { "title": "Hello World", "body": "Smoke test content" }
@@ -188,7 +199,7 @@ assert_json "Read row data" \
 assert_json "GraphQL responds" \
   "JSON.parse(d).data.__typename === 'Query'" \
   -X POST "${BASE_URL}/graphql" \
-  -H "Content-Type: application/json" \
+  -H "$JSON_CONTENT_TYPE" \
   -d '{"query":"{ __typename }"}'
 
 # Admin UI
