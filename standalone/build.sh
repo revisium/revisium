@@ -18,7 +18,7 @@ rm -rf "$SCRIPT_DIR/dist" "$SCRIPT_DIR/client" "$SCRIPT_DIR/prisma" "$SCRIPT_DIR
 cp -R "$ROOT_DIR/client" "$SCRIPT_DIR/client"
 rm -rf "$SCRIPT_DIR/client/dist"
 
-# 4. Copy runtime assets from @revisium/core
+# 4. Copy runtime assets from @revisium/core (prisma, email templates)
 mkdir -p "$SCRIPT_DIR/prisma"
 cp -R "$CORE_DIR/dist/prisma/migrations" "$SCRIPT_DIR/prisma/migrations"
 cp "$CORE_DIR/dist/prisma/schema.prisma" "$SCRIPT_DIR/prisma/schema.prisma"
@@ -40,6 +40,7 @@ npx esbuild "$ROOT_DIR/dist/src/standalone.js" \
   --external:sharp \
   --external:bcrypt \
   --external:pg-native \
+  --external:swagger-ui-dist \
   --external:@nestjs/websockets \
   --external:@nestjs/microservices \
   --external:@fastify/static \
@@ -84,6 +85,7 @@ template.dependencies = {
   'prisma': deps['prisma'],
   'sharp': coreDeps['sharp'],
   'bcrypt': coreDeps['bcrypt'],
+  'swagger-ui-dist': deps['swagger-ui-dist'] || coreDeps['swagger-ui-dist'] || '^5.31.0',
 };
 template.revisiumCore = deps['@revisium/core'] || '?';
 template.revisiumEndpoint = deps['@revisium/endpoint'] || '?';

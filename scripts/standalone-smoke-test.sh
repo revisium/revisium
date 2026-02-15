@@ -138,6 +138,10 @@ echo "--- Running tests ---"
 
 # Swagger docs
 assert_status "GET /api returns 200" GET "${BASE_URL}/api" 200
+assert_contains "GET /api contains swagger-ui.css" "swagger-ui.css" "${BASE_URL}/api"
+assert_contains "GET /api contains swagger-ui-bundle.js" "swagger-ui-bundle.js" "${BASE_URL}/api"
+assert_status "GET /api/swagger-ui.css returns 200" GET "${BASE_URL}/api/swagger-ui.css" 200
+assert_status "GET /api/swagger-ui-bundle.js returns 200" GET "${BASE_URL}/api/swagger-ui-bundle.js" 200
 
 # Create project
 PROJECT_RESPONSE=$(curl -sf -X POST "${BASE_URL}/api/organization/${ORG}/projects" \
