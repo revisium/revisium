@@ -4,6 +4,8 @@
 
 Unopinionated data platform with referential integrity.
 
+**Your schema. Your data. Full control.**
+
 [![License](https://img.shields.io/github/license/revisium/revisium?color=blue)](LICENSE)
 [![Docker](https://img.shields.io/docker/v/revisium/revisium?label=docker&sort=semver)](https://hub.docker.com/r/revisium/revisium)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium)
