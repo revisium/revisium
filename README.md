@@ -36,7 +36,7 @@ Managed through Admin UI, GraphQL API, REST API, MCP Protocol, or any combinatio
 | 5 | **Versioning** | Branches, revisions, drafts — full history, diff, rollback |
 | 6 | **Schema Evolution** | Change types, add/remove fields — existing data transforms automatically |
 | 7 | **Migrations CLI** | Auto-generated migrations, portable across branches and instances via [revisium-cli](https://github.com/revisium/revisium-cli) |
-| 8 | **Auto APIs** | GraphQL + REST + MCP — generated from schema with filtering, pagination, relations |
+| 8 | **APIs** | System API (GraphQL, REST, MCP) + auto-generated typed APIs from your schema |
 | 9 | **Admin UI** | Visual schema editor, table views with filters/sorts, diff viewer, change review |
 | 10 | **Self-Hosted** | Apache 2.0, your infrastructure, no vendor lock-in |
 
