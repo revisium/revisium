@@ -23,7 +23,7 @@ Revisium is an unopinionated microservice for structured JSON data with relation
 
 Managed through Admin UI, GraphQL API, REST API, MCP Protocol, or any combination.
 
-https://github.com/user-attachments/assets/216a9397-ff23-4ff6-bf1a-e39ba22cbaac
+<img width="1216" height="764" alt="rev" src="https://github.com/user-attachments/assets/536b9c1b-bab8-40c4-a0ba-3620601e105b" />
 
 ## Key Features
 
@@ -138,18 +138,18 @@ query {
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   revisium (this repo)                   │
-│              All-in-one self-hosted package              │
+│                   revisium (this repo)                  │
+│              All-in-one self-hosted package             │
 ├─────────────────┬─────────────────┬─────────────────────┤
 │  @revisium/core │ @revisium/admin │ @revisium/endpoint  │
 │  Backend API    │  Web UI         │  API generator      │
 ├─────────────────┴─────────────────┴─────────────────────┤
-│                     API Layer                            │
+│                     API Layer                           │
 ├───────────┬───────────┬───────────┬─────────────────────┤
 │  GraphQL  │  REST API │    MCP    │   Generated APIs    │
 │           │           │           │  (GraphQL + REST)   │
 ├───────────┴───────────┴───────────┴─────────────────────┤
-│                  Infrastructure                          │
+│                  Infrastructure                         │
 ├───────────┬───────────┬───────────┬─────────────────────┤
 │ PostgreSQL│   Redis   │    S3     │       SMTP          │
 │ (required)│ (optional)│ (optional)│     (optional)      │
