@@ -220,7 +220,7 @@ See [ENV.md](./ENV.md) for all environment variables.
 ### Requirements
 
 - PostgreSQL 14+
-- Node.js 18+ (for CLI only)
+- Node.js 20+ (for standalone and CLI only)
 - S3-compatible storage (optional, for file uploads)
 - Redis (optional, for caching and multi-pod sync)
 
