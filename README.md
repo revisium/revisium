@@ -1,77 +1,229 @@
+<div align="center">
+
 # Revisium
 
-![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+Unopinionated data platform with referential integrity.
 
-**Status: Experimental and Not Production-Ready**
+[![License](https://img.shields.io/github/license/revisium/revisium?color=blue)](LICENSE)
+[![Docker](https://img.shields.io/docker/v/revisium/revisium?label=docker&sort=semver)](https://hub.docker.com/r/revisium/revisium)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium)
 
-Revisium is a tool (UI/API) inspired by JSON (JSON Schema) and Git, designed to provide a flexible and low-level headless CMS solution. **This project originated from a closed-source repository** where it was developed over the course of a year and a half as a proof of concept. I am now making it open source to foster community involvement, transparency, and collaborative improvement.
+> JSON Schema flexibility + Foreign Keys reliability.
+> Git-like versioning: branches, revisions, drafts.
+> Schema evolution with data migrations.
+> Auto-generated GraphQL + REST APIs.
 
-## About
+[Website](https://revisium.io) · [Cloud](https://cloud.revisium.io) · [Docker Hub](https://hub.docker.com/r/revisium/revisium)
 
-Revisium leverages the power of JSON schemas and the concepts of version control systems similar to Git to offer a robust framework for content management. Whether you're building a simple website or a complex application, Revisium can serve as the backbone for your content infrastructure, allowing for seamless integration and customization.
+</div>
+
+## What is Revisium
+
+Revisium is an unopinionated microservice for structured JSON data with relational integrity, schema enforcement, auto-generated APIs, Git-like versioning, and a built-in Admin UI — from schema design to change review. The platform does not impose a fixed data model — schema is designed to fit the project's needs, from flat key-value to deeply nested hierarchies.
+
+Managed through Admin UI, GraphQL API, REST API, MCP Protocol, or any combination.
 
 https://github.com/user-attachments/assets/216a9397-ff23-4ff6-bf1a-e39ba22cbaac
 
-## Getting Started
+## Key Features
 
-### Online demo (alpha)
+| # | Feature | Why it matters |
+|---|---------|----------------|
+| 1 | **JSON Schema** | Any structure, your rules — not limited by predefined field types |
+| 2 | **Foreign Keys** | Referential integrity in JSON — validation on write, can't delete if referenced |
+| 3 | **Versioning** | Branches for environments, revisions for history, drafts for WIP |
+| 4 | **Schema Migrations** | `npx revisium migrate apply/save` — like Prisma, but for data |
+| 5 | **Auto APIs** | GraphQL + REST with filtering, pagination, relations — from your schema |
+| 6 | **Self-Hosted** | Your data, your infrastructure, Apache 2.0, no vendor lock-in |
 
-- https://cloud.revisium.io/
+## Quick Start
 
-### Running Revisium with Docker
+### Cloud
 
-You can run **Revisium** using Docker by executing the following command.
+Try without installing — [cloud.revisium.io](https://cloud.revisium.io)
 
-```shell
-docker run -d \
-  --name revisium \
-  --env DATABASE_URL="postgresql://<db_user>:<db_password>@host.docker.internal:5432/<database>" \
-  -p 8080:8080 \
-  revisium/revisium:v1.0.1
+### Standalone (no dependencies)
+
+```bash
+npx @revisium/standalone@latest
 ```
 
-### Running Revisium with Docker Compose
+Open [http://localhost:9222](http://localhost:9222) — no auth by default, `--auth` to enable (login: `admin` / `admin`).
 
-[docker-compose.yml](https://github.com/revisium/revisium/blob/master/docker-compose.yml)
+Embedded PostgreSQL, zero configuration. Perfect for local development and AI agent integrations.
 
+See [@revisium/standalone README](./standalone/README.md) for all CLI options, MCP setup, and authentication details.
 
-### Accessing
-Once the services are up and running, you can access the Revisium application using the following default credentials:
+> For production deployment (Docker Compose, Kubernetes), see [Deployment Options](#deployment-options).
 
-- URL: http://localhost:8080
-- Username: admin
-- Password: admin
+## Use Cases
+
+### Headless CMS
+Content managed in Revisium (Admin UI or API), consumed by frontends via auto-generated REST/GraphQL. Branches for staging/production, drafts for editorial workflow.
+
+### Dictionary / Master Data
+Single source of truth for reference data (currencies, categories, product specs) shared across microservices. Foreign keys guarantee consistency.
+
+### Configuration Store
+Application settings, feature flags, pricing rules as versioned JSON. Draft → review → commit workflow. Branches for dev/staging/prod environments.
+
+### AI Agent Memory
+Structured memory for AI agents (Claude Code, Cursor, custom). Typed schemas, version control, rollback on corruption. Human review of agent-written data via Admin UI. [MCP Protocol](https://modelcontextprotocol.io) support built-in.
+
+### Game Data & Complex Domains
+Items, characters, quests with rich relationships. Schema validation, computed fields (40+ formula functions), file attachments via S3.
+
+## Data Model
+
+```
+Organization
+  └── Project
+        └── Branch (master, staging, dev)
+              └── Revision (immutable snapshot) / Draft (WIP)
+                    └── Table (JSON Schema)
+                          └── Row (id + data)
+```
+
+### Example: e-commerce with foreign keys and computed fields
+
+**Table `categories`** — row id: `"electronics"`
+```json
+{
+  "name": "Electronics",
+  "description": "Smartphones, laptops, accessories"
+}
+```
+
+**Table `products`** — row id: `"iphone-16"`
+```jsonc
+{
+  "title": "iPhone 16 Pro",
+  "category": "electronics",         // ← FK → categories
+  "price": 999,
+  "quantity": 50,
+  "total": 49950,                    // ← computed: price * quantity
+  "inStock": true,                   // ← computed: quantity > 0
+  "specs": {
+    "weight": 199,
+    "tags": ["5G", "USB-C"]
+  },
+  "relatedProducts": ["macbook-m4"]  // ← array of FK → products
+}
+```
+
+### Example: GraphQL query on auto-generated API
+
+```graphql
+query {
+  products(
+    where: { category: { eq: "electronics" } }
+    orderBy: { price: DESC }
+    first: 10
+  ) {
+    edges {
+      node {
+        id
+        title
+        price
+        category {
+          name  # Auto-resolved via foreignKey
+        }
+      }
+    }
+  }
+}
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   revisium (this repo)                   │
+│              All-in-one self-hosted package              │
+├─────────────────┬─────────────────┬─────────────────────┤
+│  @revisium/core │ @revisium/admin │ @revisium/endpoint  │
+│  Backend API    │  Web UI         │  API generator      │
+├─────────────────┴─────────────────┴─────────────────────┤
+│                     API Layer                            │
+├───────────┬───────────┬───────────┬─────────────────────┤
+│  GraphQL  │  REST API │    MCP    │   Generated APIs    │
+│           │           │           │  (GraphQL + REST)   │
+├───────────┴───────────┴───────────┴─────────────────────┤
+│                  Infrastructure                          │
+├───────────┬───────────┬───────────┬─────────────────────┤
+│ PostgreSQL│   Redis   │    S3     │       SMTP          │
+│ (required)│ (optional)│ (optional)│     (optional)      │
+└───────────┴───────────┴───────────┴─────────────────────┘
+```
+
+## Ecosystem
+
+### Platform
+
+| Package | Description | Quality |
+|---------|-------------|---------|
+| **[revisium](https://github.com/revisium/revisium)** | All-in-one self-hosted deployment | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium) |
+| [@revisium/core](https://github.com/revisium/revisium-core) | Backend API — GraphQL, REST, MCP | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium-core&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium-core) |
+| [@revisium/admin](https://github.com/revisium/revisium-admin) | Web UI — schema editor, data management, diff viewer | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium-admin&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium-admin) |
+| [@revisium/endpoint](https://github.com/revisium/revisium-endpoint) | Auto-generated GraphQL + REST APIs | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium-endpoint&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium-endpoint) |
+
+### Libraries
+
+| Package | Description | Quality |
+|---------|-------------|---------|
+| [@revisium/schema-toolkit](https://github.com/revisium/schema-toolkit) | JSON Schema engine — validation, diff, patch, migrations | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_schema-toolkit&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_schema-toolkit) |
+| [@revisium/schema-toolkit-ui](https://github.com/revisium/schema-toolkit-ui) | Schema / Row / Table editors for React | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_schema-toolkit-ui&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_schema-toolkit-ui) |
+| [@revisium/formula](https://github.com/revisium/formula) | Formula expression engine — 40+ built-in functions | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_formula&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_formula) |
+| [@revisium/prisma-pg-json](https://github.com/revisium/prisma-pg-json) | PostgreSQL JSON query builder for Prisma | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_prisma-pg-json&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_prisma-pg-json) |
+| [@revisium/client](https://github.com/revisium/revisium-client) | TypeScript API client | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium-client&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium-client) |
+
+### Tools & Integrations
+
+| Package | Description | Quality |
+|---------|-------------|---------|
+| [@revisium/mcp-memory](https://github.com/revisium/mcp-memory) | MCP server for AI agent memory ![alpha](https://img.shields.io/badge/status-alpha-orange) | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_mcp-memory&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_mcp-memory) |
+| [revisium-cli](https://github.com/revisium/revisium-cli) | Schema migration CLI — save & apply across environments | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=revisium_revisium-cli&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=revisium_revisium-cli) |
+
+### Dependency Graph
+
+```
+revisium (self-hosted)
+├── @revisium/core
+│   ├── @revisium/schema-toolkit
+│   │   └── @revisium/formula
+│   └── @revisium/prisma-pg-json
+├── @revisium/admin
+│   ├── @revisium/schema-toolkit-ui
+│   │   ├── @revisium/schema-toolkit
+│   │   └── @revisium/formula
+│   └── @revisium/formula
+└── @revisium/endpoint
+    └── @revisium/schema-toolkit
+
+@revisium/mcp-memory ──► @revisium/client
+revisium-cli ──► @revisium/client + @revisium/schema-toolkit
+```
 
 ## Configuration
 
 See [ENV.md](./ENV.md) for all environment variables.
 
-## Key Features
+## Deployment Options
 
-- SaaS or Self-Hosted: Flexible deployment options to suit your infrastructure needs.
-- Declarative Schema Creation and Editing: Easily define and modify data schemas in a declarative manner.
-- Versioning and State Management: Manage schema and data versions with Git-like revision control, branching, and forking.
-- Automatic API Generation: Generate REST and GraphQL APIs automatically based on your schemas.
-- Support for Primitives, Arrays, Objects, and Hierarchies: Handle a wide range of data types, including root-level values and nested structures.
-- Schema Relationships: Establish connections between schemas, allowing JSON fields to be assigned as keys with referential integrity support.
-- Data Migrations: Handle schema changes with data migrations, including renaming, creating, deleting fields, type transformations, and moving fields between nodes.
-- UI and API Access: Interact with Revisium through both a user-friendly interface and a powerful API.
+| Option | Description |
+|--------|-------------|
+| **Docker Compose** | Full stack with PostgreSQL — recommended for quick start |
+| **Docker** | Single container, bring your own PostgreSQL |
+| **Kubernetes** | Helm chart, horizontal scaling |
+| **Cloud** | Managed SaaS — [cloud.revisium.io](https://cloud.revisium.io) |
 
-## Usage Examples
+### Requirements
 
-- Low-Level Headless CMS: Utilize Revisium as the foundation for your content management needs without being tied to a specific front-end.
-- Source of Truth for Configurations and Reference Tables: Manage configurations and reference data within your databases, including initial database seeding.
-- Remote Configuration Management: Control and update remote configurations seamlessly.
-- Immutable or Draft Data States: Ensure data immutability or manage draft states for atomic data updates.
-- Data Branching for Different Environments: Create data branches for environments like "develop," "staging," and "production."
-- Importing Schemas from Version Control Systems: Import configuration and reference information from repositories for enhanced service management.
-- Versioned Backups with Fast Access: Maintain versioned backups that can be quickly accessed via API or UI.
-- Quick Forking of Templates: Clone templates with predefined schemas and data to create tailored instances for specific entities or projects. Each user project or entity can start with a standard set of schemas and data while maintaining independent API and versioning.
-
-## Disclaimer
-
-Please note that this codebase is still in an early, experimental stage. It may contain incomplete features, limited documentation, and potential stability issues. **It is not recommended for production use at this time.**
+- PostgreSQL 14+
+- Node.js 20+ (for standalone and CLI only)
+- S3-compatible storage (optional, for file uploads)
+- Redis (optional, for caching and multi-pod sync)
 
 ## License
 
-This project is licensed under the [Apache License 2.0](./LICENSE).
+Apache 2.0 — see [LICENSE](./LICENSE).
