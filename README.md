@@ -29,12 +29,16 @@ Managed through Admin UI, GraphQL API, REST API, MCP Protocol, or any combinatio
 
 | # | Feature | Why it matters |
 |---|---------|----------------|
-| 1 | **JSON Schema** | Any structure, your rules — not limited by predefined field types |
-| 2 | **Foreign Keys** | Referential integrity in JSON — validation on write, can't delete if referenced |
-| 3 | **Versioning** | Branches for environments, revisions for history, drafts for WIP |
-| 4 | **Schema Migrations** | `npx revisium migrate apply/save` — like Prisma, but for data |
-| 5 | **Auto APIs** | GraphQL + REST with filtering, pagination, relations — from your schema |
-| 6 | **Self-Hosted** | Your data, your infrastructure, Apache 2.0, no vendor lock-in |
+| 1 | **JSON Schema** | Any structure — primitives, objects, arrays, any nesting depth |
+| 2 | **Foreign Keys** | Referential integrity — validation on write, cascade rename, can't delete if referenced |
+| 3 | **Computed Fields** | `x-formula` expressions — 40+ functions, aggregations over arrays |
+| 4 | **Files** | S3 file attachments at any schema level — images, documents, galleries |
+| 5 | **Versioning** | Branches, revisions, drafts — full history, diff, rollback |
+| 6 | **Schema Evolution** | Change types, add/remove fields — existing data transforms automatically |
+| 7 | **Migrations CLI** | Auto-generated migrations, portable across branches and instances via [revisium-cli](https://github.com/revisium/revisium-cli) |
+| 8 | **APIs** | System API (GraphQL, REST, MCP) + auto-generated typed APIs from your schema |
+| 9 | **Admin UI** | Visual schema editor, table views with filters/sorts, diff viewer, change review |
+| 10 | **Self-Hosted** | Apache 2.0, your infrastructure, no vendor lock-in |
 
 ## Quick Start
 
