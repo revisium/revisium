@@ -15,7 +15,7 @@ Unopinionated data platform with referential integrity.
 > Schema evolution with data migrations.
 > Auto-generated GraphQL + REST APIs.
 
-[Website](https://revisium.io) · [Cloud](https://cloud.revisium.io) · [Docker Hub](https://hub.docker.com/r/revisium/revisium)
+[Website](https://revisium.io) · [Docs](https://docs.revisium.io) · [Cloud](https://cloud.revisium.io) · [Docker Hub](https://hub.docker.com/r/revisium/revisium)
 
 </div>
 
