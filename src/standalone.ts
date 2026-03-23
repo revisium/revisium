@@ -61,8 +61,7 @@ function parseArgs(argv: string[]): StandaloneArgs {
         idx += 2;
         break;
       case '--data':
-      case '--data-dir':
-        args.dataDir = resolve(nextArg(tokens, idx, token));
+        args.dataDir = resolve(nextArg(tokens, idx, '--data'));
         idx += 2;
         break;
       case '--auth':
