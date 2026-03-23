@@ -61,7 +61,8 @@ function parseArgs(argv: string[]): StandaloneArgs {
         idx += 2;
         break;
       case '--data':
-        args.dataDir = resolve(nextArg(tokens, idx, '--data'));
+      case '--data-dir':
+        args.dataDir = resolve(nextArg(tokens, idx, token));
         idx += 2;
         break;
       case '--auth':
@@ -153,6 +154,9 @@ async function main() {
 
   process.env.PORT = String(args.port);
   process.env.CACHE_ENABLED = process.env.CACHE_ENABLED ?? '1';
+  process.env.STORAGE_PROVIDER = process.env.STORAGE_PROVIDER ?? 'local';
+  process.env.STORAGE_LOCAL_PATH =
+    process.env.STORAGE_LOCAL_PATH ?? resolve(args.dataDir, 'uploads');
   if (!args.auth) {
     process.env.REVISIUM_NO_AUTH = 'true';
   }
@@ -191,6 +195,7 @@ async function main() {
     console.log(`  URL:            http://localhost:${args.port}`);
     console.log(`  REST API:       http://localhost:${args.port}/api`);
     console.log(`  Data directory: ${args.dataDir}`);
+    console.log(`  File storage:   ${process.env.STORAGE_LOCAL_PATH}`);
     if (args.auth) {
       console.log('  Auth:           enabled (admin/admin)');
     } else {
