@@ -196,7 +196,10 @@ async function main() {
     console.log(`  Data directory: ${args.dataDir}`);
     const storageInfo =
       process.env.STORAGE_PROVIDER === 'local'
-        ? process.env.STORAGE_PROVIDER + ' (' + process.env.STORAGE_LOCAL_PATH + ')'
+        ? process.env.STORAGE_PROVIDER +
+          ' (' +
+          process.env.STORAGE_LOCAL_PATH +
+          ')'
         : process.env.STORAGE_PROVIDER;
     console.log(`  File storage:   ${storageInfo}`);
     if (args.auth) {
