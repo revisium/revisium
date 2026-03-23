@@ -194,9 +194,11 @@ async function main() {
     console.log(`  URL:            http://localhost:${args.port}`);
     console.log(`  REST API:       http://localhost:${args.port}/api`);
     console.log(`  Data directory: ${args.dataDir}`);
-    console.log(
-      `  File storage:   ${process.env.STORAGE_PROVIDER}${process.env.STORAGE_PROVIDER === 'local' ? ` (${process.env.STORAGE_LOCAL_PATH})` : ''}`,
-    );
+    const storageInfo =
+      process.env.STORAGE_PROVIDER === 'local'
+        ? process.env.STORAGE_PROVIDER + ' (' + process.env.STORAGE_LOCAL_PATH + ')'
+        : process.env.STORAGE_PROVIDER;
+    console.log(`  File storage:   ${storageInfo}`);
     if (args.auth) {
       console.log('  Auth:           enabled (admin/admin)');
     } else {
