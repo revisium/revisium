@@ -232,4 +232,4 @@ See [ENV.md](./ENV.md) for all environment variables.
 
 ## License
 
-Apache 2.0 — see [LICENSE](./LICENSE).
+Apache 2.0 — see [LICENSE](./LICENSE). Some packages (e.g. `@revisium/core`) include enterprise features under the [Revisium Enterprise License](https://github.com/revisium/revisium-core/blob/master/ee/LICENSE) in their `ee/` directories.
