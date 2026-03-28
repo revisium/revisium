@@ -107,6 +107,17 @@ docker-compose up -d
 
 ---
 
+## Enterprise / Licensing (Optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REVISIUM_LICENSE_KEY` | - | License key for enterprise features. If not set, all limits are disabled (unlimited). Validated against `https://licensing.revisium.io` |
+| `REVISIUM_BILLING_ENABLED` | `false` | Enable billing/tariffs module |
+| `REVISIUM_SSO_ENABLED` | `false` | Enable SSO module |
+| `REVISIUM_AUDIT_ENABLED` | `false` | Enable audit log module |
+
+---
+
 ## Deprecated Variables
 
 The following variables are deprecated and will be removed in **v3.0.0**:
