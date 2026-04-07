@@ -32,9 +32,11 @@ docker-compose up -d
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `JWT_SECRET` | (auto-generated) | JWT signing key |
+| `JWT_SECRET` | (auto-generated) | JWT signing key. **Must be explicitly set for multi-replica deployments** (required for JWT sessions and deterministic internal API key derivation) |
 | `ADMIN_PASSWORD` | `admin` | Default admin user password |
 | `ENDPOINT_PASSWORD` | `endpoint` | Default endpoint user password |
+
+> **Note:** Internal API keys for endpoint↔core authentication are derived automatically from `JWT_SECRET`. No additional env vars are needed.
 
 ---
 
