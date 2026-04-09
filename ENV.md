@@ -109,6 +109,15 @@ docker-compose up -d
 
 ---
 
+## API Key Limits (Optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `API_KEY_MAX_PER_USER` | `10` | Maximum number of personal API keys per user |
+| `API_KEY_MAX_SERVICE_PER_ORG` | `100` | Maximum number of service API keys per organization |
+
+---
+
 ## Enterprise / Licensing (Optional)
 
 | Variable | Default | Description |
