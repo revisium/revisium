@@ -69,10 +69,15 @@ These env vars have no effect on Docker builds — the code falls back to `__dir
 
 ## Publish
 
-```bash
-cd standalone
-npm publish --access public --tag alpha
-```
+The `@revisium/standalone` package is published by the `Publish Standalone Package to npmjs`
+workflow when a release tag is pushed:
+
+- `vX.Y.Z-alpha.N` publishes with npm tag `alpha`
+- `vX.Y.Z-rc.N` publishes with npm tag `rc`
+- `vX.Y.Z` publishes with npm tag `latest` only when it is the highest stable tag
+- older stable maintenance releases publish with npm tag `release-X-Y`
+
+Build locally with `npm run standalone:build` and inspect with `cd standalone && npm pack`.
 
 ## Testing Locally
 

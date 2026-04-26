@@ -102,5 +102,5 @@ console.log('  admin (bundled): ' + template.revisiumAdmin);
 echo ""
 echo "Standalone package ready at $SCRIPT_DIR"
 echo ""
-echo "To publish:  cd standalone && npm publish --access public --tag alpha"
+echo "Publishing is handled by the v* tag workflow."
 echo "To inspect:  cd standalone && npm pack"
