@@ -1,0 +1,369 @@
+name: Release Train
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Release train transition
+        required: true
+        type: choice
+        options:
+          - start-minor-alpha
+          - start-major-alpha
+          - start-minor-rc
+          - start-major-rc
+          - start-minor-stable
+          - start-major-stable
+          - alpha-bump
+          - promote-rc
+          - rc-bump
+          - stable
+          - patch
+          - patch-alpha-start
+          - patch-rc-start
+      dry_run:
+        description: Validate and show the computed release without pushing.
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.repository }}-release-train
+  cancel-in-progress: false
+
+# Keep GITHUB_TOKEN read-only. Release commits and branch refs are created with
+# the release GitHub App so the version commit receives GitHub's Verified badge.
+# The tag is pushed with the same App token so downstream tag workflows run.
+permissions:
+  contents: read
+
+jobs:
+  release-train:
+    runs-on: ubuntu-latest
+    env:
+      ACTION: ${{ inputs.action }}
+      DRY_RUN: ${{ inputs.dry_run }}
+      VERSION_FILES: ''
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.11.1
+          cache: 'npm'
+
+      - name: Create release app token
+        id: app-token
+        if: ${{ inputs.dry_run == false }}
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Compute release transition
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+
+          CURRENT_BRANCH=${GITHUB_REF_NAME}
+          ACTION="$ACTION"
+
+          if [[ "$ACTION" == start-* ]]; then
+            if [[ "$CURRENT_BRANCH" != "master" ]]; then
+              echo "start-* actions must run from master. Current branch: $CURRENT_BRANCH"
+              exit 1
+            fi
+
+            ACTIVE_TRAINS=()
+            while IFS= read -r BRANCH; do
+              [[ -z "$BRANCH" ]] && continue
+              VERSION=$(git show "$BRANCH:package.json" | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+              if [[ "$VERSION" =~ -(alpha|rc)\.[0-9]+$ ]]; then
+                ACTIVE_TRAINS+=("$BRANCH ($VERSION)")
+              fi
+            done < <(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/release/*')
+
+            if (( ${#ACTIVE_TRAINS[@]} > 0 )); then
+              echo "Cannot start a new release train while a prerelease train is active:"
+              printf -- '- %s\n' "${ACTIVE_TRAINS[@]}"
+              exit 1
+            fi
+
+            LATEST_STABLE_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
+            if [[ -z "$LATEST_STABLE_TAG" ]]; then
+              echo "No stable tag found. Create an initial stable tag before using release trains."
+              exit 1
+            fi
+
+            BASE_VERSION=${LATEST_STABLE_TAG#v}
+            IFS=. read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+
+            case "$ACTION" in
+              start-minor-*)
+                TARGET_MAJOR="$MAJOR"
+                TARGET_MINOR=$((MINOR + 1))
+                ;;
+              start-major-*)
+                TARGET_MAJOR=$((MAJOR + 1))
+                TARGET_MINOR=0
+                ;;
+              *)
+                echo "Unsupported start action: $ACTION"
+                exit 1
+                ;;
+            esac
+
+            TARGET_BASE="$TARGET_MAJOR.$TARGET_MINOR.0"
+            case "$ACTION" in
+              *-alpha) TARGET_VERSION="$TARGET_BASE-alpha.0" ;;
+              *-rc) TARGET_VERSION="$TARGET_BASE-rc.0" ;;
+              *-stable) TARGET_VERSION="$TARGET_BASE" ;;
+              *)
+                echo "Unsupported start action: $ACTION"
+                exit 1
+                ;;
+            esac
+
+            TARGET_BRANCH="release/$TARGET_MAJOR.$TARGET_MINOR.x"
+            if git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null 2>&1; then
+              echo "Target branch already exists: $TARGET_BRANCH"
+              exit 1
+            fi
+
+            SOURCE_SHA=$(git rev-parse origin/master^{commit})
+            git switch -c "$TARGET_BRANCH" "$SOURCE_SHA"
+          else
+            if [[ ! "$CURRENT_BRANCH" =~ ^release/[0-9]+\.[0-9]+\.x$ ]]; then
+              echo "$ACTION must run from release/X.Y.x. Current branch: $CURRENT_BRANCH"
+              exit 1
+            fi
+
+            TARGET_BRANCH="$CURRENT_BRANCH"
+            BRANCH_LINE=${CURRENT_BRANCH#release/}
+            BRANCH_LINE=${BRANCH_LINE%.x}
+            IFS=. read -r TARGET_MAJOR TARGET_MINOR <<< "$BRANCH_LINE"
+            CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+            if [[ ! "$CURRENT_VERSION" =~ ^$TARGET_MAJOR\.$TARGET_MINOR\. ]]; then
+              echo "package.json version $CURRENT_VERSION does not match branch $CURRENT_BRANCH"
+              exit 1
+            fi
+
+            case "$ACTION" in
+              alpha-bump)
+                if [[ ! "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-alpha\.[0-9]+$ ]]; then
+                  echo "alpha-bump requires current version X.Y.Z-alpha.N"
+                  exit 1
+                fi
+                TARGET_VERSION=$(node -e "const v='$CURRENT_VERSION'; const m=v.match(/^(.+-alpha\.)([0-9]+)$/); console.log(m[1] + (Number(m[2]) + 1));")
+                ;;
+              promote-rc)
+                if [[ ! "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-alpha\.[0-9]+$ ]]; then
+                  echo "promote-rc requires current version X.Y.Z-alpha.N"
+                  exit 1
+                fi
+                TARGET_VERSION=${CURRENT_VERSION%%-alpha.*}-rc.0
+                ;;
+              rc-bump)
+                if [[ ! "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
+                  echo "rc-bump requires current version X.Y.Z-rc.N"
+                  exit 1
+                fi
+                TARGET_VERSION=$(node -e "const v='$CURRENT_VERSION'; const m=v.match(/^(.+-rc\.)([0-9]+)$/); console.log(m[1] + (Number(m[2]) + 1));")
+                ;;
+              stable)
+                if [[ ! "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-(alpha|rc)\.[0-9]+$ ]]; then
+                  echo "stable requires current version X.Y.Z-alpha.N or X.Y.Z-rc.N"
+                  exit 1
+                fi
+                TARGET_VERSION=${CURRENT_VERSION%%-*}
+                ;;
+              patch)
+                if [[ ! "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                  echo "patch requires stable current version X.Y.Z"
+                  exit 1
+                fi
+                TARGET_VERSION=$(node -e "const [a,b,c]='$CURRENT_VERSION'.split('.').map(Number); console.log([a,b,c+1].join('.'));")
+                ;;
+              patch-alpha-start)
+                if [[ ! "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                  echo "patch-alpha-start requires stable current version X.Y.Z"
+                  exit 1
+                fi
+                TARGET_VERSION=$(node -e "const [a,b,c]='$CURRENT_VERSION'.split('.').map(Number); console.log([a,b,c+1].join('.') + '-alpha.0');")
+                ;;
+              patch-rc-start)
+                if [[ ! "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                  echo "patch-rc-start requires stable current version X.Y.Z"
+                  exit 1
+                fi
+                TARGET_VERSION=$(node -e "const [a,b,c]='$CURRENT_VERSION'.split('.').map(Number); console.log([a,b,c+1].join('.') + '-rc.0');")
+                ;;
+              *)
+                echo "Unsupported action on release branch: $ACTION"
+                exit 1
+                ;;
+            esac
+          fi
+
+          if [[ ! "$TARGET_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|rc)\.[0-9]+)?$ ]]; then
+            echo "Computed invalid target version: $TARGET_VERSION"
+            exit 1
+          fi
+
+          IFS=. read -r VERSION_MAJOR VERSION_MINOR _ <<< "${TARGET_VERSION%%-*}"
+          if [[ "$VERSION_MAJOR" != "$TARGET_MAJOR" || "$VERSION_MINOR" != "$TARGET_MINOR" ]]; then
+            echo "Target version $TARGET_VERSION does not match target branch $TARGET_BRANCH"
+            exit 1
+          fi
+
+          TAG="v$TARGET_VERSION"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag already exists locally: $TAG"
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists on origin: $TAG"
+            exit 1
+          fi
+
+          echo "target_branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "target_version=$TARGET_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [[ "$ACTION" == start-* ]]; then
+            echo "ref_mode=create" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref_mode=update" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Apply version metadata
+        env:
+          TARGET_VERSION: ${{ steps.release.outputs.target_version }}
+        run: node .github/scripts/apply-version-metadata.mjs
+
+      - name: Validate stable runtime dependencies
+        if: ${{ !contains(steps.release.outputs.target_version, '-') }}
+        run: node .github/scripts/check-prerelease-deps.mjs
+
+      - name: Validate release metadata
+        id: metadata
+        env:
+          TARGET_VERSION: ${{ steps.release.outputs.target_version }}
+        run: |
+          set -euo pipefail
+          node .github/scripts/validate-version-metadata.mjs
+
+          ALLOWED_FILES=("package.json" "package-lock.json")
+          while IFS= read -r FILE; do
+            [[ -z "$FILE" ]] && continue
+            ALLOWED_FILES+=("$FILE")
+          done <<< "${VERSION_FILES:-}"
+
+          while IFS= read -r FILE; do
+            [[ -z "$FILE" ]] && continue
+            ALLOWED=false
+            for ALLOWED_FILE in "${ALLOWED_FILES[@]}"; do
+              if [[ "$FILE" == "$ALLOWED_FILE" ]]; then
+                ALLOWED=true
+                break
+              fi
+            done
+            if [[ "$ALLOWED" != "true" ]]; then
+              echo "Release commit may not change $FILE"
+              exit 1
+            fi
+          done <<< "$(git diff --name-only)"
+
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create test .env
+        run: cp .env.example .env
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint:ci
+
+      - name: Type check
+        run: npm run tsc
+
+      - name: Build standalone package
+        run: npm run standalone:build
+
+      - name: Smoke test standalone package
+        run: bash scripts/standalone-smoke-test.sh
+
+      - name: Create verified release commit
+        id: release-commit
+        if: ${{ inputs.dry_run == false }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TARGET_BRANCH: ${{ steps.release.outputs.target_branch }}
+          TARGET_VERSION: ${{ steps.release.outputs.target_version }}
+          METADATA_CHANGED: ${{ steps.metadata.outputs.changed }}
+          REF_MODE: ${{ steps.release.outputs.ref_mode }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "RELEASE_BOT_CLIENT_ID and RELEASE_BOT_PRIVATE_KEY are required to create verified release commits"
+            exit 1
+          fi
+
+          BASE_SHA=$(git rev-parse HEAD)
+          export BASE_SHA
+          export COMMIT_MESSAGE="chore(release): $TARGET_VERSION"
+          COMMIT_FILES=$'package.json\npackage-lock.json'
+          while IFS= read -r FILE; do
+            [[ -z "$FILE" ]] && continue
+            COMMIT_FILES="$COMMIT_FILES"$'\n'"$FILE"
+          done <<< "${VERSION_FILES:-}"
+          export COMMIT_FILES
+          export COMMIT_SUMMARY="Metadata changed: $METADATA_CHANGED"
+
+          node .github/scripts/create-github-app-commit.mjs
+
+      - name: Push release tag
+        if: ${{ inputs.dry_run == false }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TARGET_BRANCH: ${{ steps.release.outputs.target_branch }}
+          TAG: ${{ steps.release.outputs.tag }}
+          COMMIT_SHA: ${{ steps.release-commit.outputs.commit_sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${GH_TOKEN:-}" || -z "${COMMIT_SHA:-}" ]]; then
+            echo "Release App token and verified commit SHA are required before pushing the tag"
+            exit 1
+          fi
+
+          git fetch origin "refs/heads/$TARGET_BRANCH:refs/remotes/origin/$TARGET_BRANCH"
+          FETCHED_SHA=$(git rev-parse "refs/remotes/origin/$TARGET_BRANCH")
+          if [[ "$FETCHED_SHA" != "$COMMIT_SHA" ]]; then
+            echo "Release branch $TARGET_BRANCH points at $FETCHED_SHA, expected $COMMIT_SHA"
+            exit 1
+          fi
+
+          git tag "$TAG" "$COMMIT_SHA"
+          git push "https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}" "$TAG"
+
+      - name: Dry run summary
+        if: ${{ inputs.dry_run }}
+        run: |
+          echo "Dry run only. No commit, branch, or tag was pushed."
+          echo "Target branch: ${{ steps.release.outputs.target_branch }}"
+          echo "Target version: ${{ steps.release.outputs.target_version }}"
+          echo "Tag: ${{ steps.release.outputs.tag }}"

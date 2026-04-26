@@ -2,6 +2,9 @@ name: Build
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
   workflow_call:
     secrets:
       DOCKERHUB_USERNAME:
@@ -21,22 +24,47 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Determine latest stable Docker tag eligibility
+        id: stable-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IS_LATEST_STABLE=false
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            LATEST_STABLE_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
+            if [[ "$GITHUB_REF_NAME" == "$LATEST_STABLE_TAG" ]]; then
+              IS_LATEST_STABLE=true
+            fi
+          fi
+
+          echo "is_latest_stable=$IS_LATEST_STABLE" >> "$GITHUB_OUTPUT"
 
       - name: Log in to the Container registry
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 #docker/login-action@v3
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f #docker/metadata-action@v5
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.ref_type == 'tag' && !contains(github.ref_name, '-') }}
+            type=raw,value=latest,enable=${{ steps.stable-tag.outputs.is_latest_stable == 'true' }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 #docker/build-push-action@v5
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           push: true

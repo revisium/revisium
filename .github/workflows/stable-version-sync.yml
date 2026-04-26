@@ -1,0 +1,144 @@
+name: Stable Version Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Stable version to mirror on master, without leading v.
+        required: true
+      dry_run:
+        description: Validate and show changes without opening a PR.
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.repository }}-stable-version-sync
+  cancel-in-progress: false
+
+# Keep GITHUB_TOKEN read-only. Sync branches and PRs use the release GitHub App.
+permissions:
+  contents: read
+
+jobs:
+  stable-version-sync:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+      DRY_RUN: ${{ inputs.dry_run }}
+      VERSION_FILES: ''
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.11.1
+          cache: 'npm'
+
+      - name: Validate target version
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/tags/*:refs/tags/*'
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Stable version sync requires X.Y.Z without prerelease suffix"
+            exit 1
+          fi
+
+          if ! git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "Stable tag does not exist: v$VERSION"
+            exit 1
+          fi
+
+          LATEST_STABLE_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
+          if [[ "$LATEST_STABLE_TAG" != "v$VERSION" ]]; then
+            echo "Requested version v$VERSION is not the latest stable tag ($LATEST_STABLE_TAG)"
+            exit 1
+          fi
+
+      - name: Apply stable version metadata
+        env:
+          TARGET_VERSION: ${{ inputs.version }}
+        run: node .github/scripts/apply-version-metadata.mjs
+
+      - name: Validate changed files
+        id: metadata
+        run: |
+          set -euo pipefail
+          CHANGED_FILES=$(git diff --name-only)
+
+          if [[ -z "$CHANGED_FILES" ]]; then
+            echo "Master already mirrors v$VERSION"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          while IFS= read -r FILE; do
+            case "$FILE" in
+              package.json|package-lock.json) ;;
+              *)
+                echo "Stable version sync may not change $FILE"
+                exit 1
+                ;;
+            esac
+          done <<< "$CHANGED_FILES"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create release app token
+        id: app-token
+        if: ${{ inputs.dry_run == false && steps.metadata.outputs.changed == 'true' }}
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Create pull request
+        if: ${{ inputs.dry_run == false && steps.metadata.outputs.changed == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "RELEASE_BOT_CLIENT_ID and RELEASE_BOT_PRIVATE_KEY are required to create the sync branch and open a PR"
+            exit 1
+          fi
+
+          BRANCH="chore/sync-stable-v$VERSION"
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            echo "Sync branch already exists: $BRANCH"
+            exit 1
+          fi
+
+          BASE_SHA=$(git rev-parse HEAD)
+          export BASE_SHA
+          export TARGET_BRANCH="$BRANCH"
+          export REF_MODE="create"
+          export COMMIT_MESSAGE="chore: sync stable version $VERSION"
+          export COMMIT_FILES=$'package.json\npackage-lock.json'
+
+          node .github/scripts/create-github-app-commit.mjs
+
+          if ! gh pr create \
+            --base master \
+            --head "$BRANCH" \
+            --title "chore: sync stable version $VERSION" \
+            --body "Mirrors the already-published stable tag v$VERSION on master. This PR updates version metadata only."; then
+            echo "PR creation failed; deleting orphan branch $BRANCH"
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$BRANCH" || true
+            exit 1
+          fi
+
+      - name: Dry run summary
+        if: ${{ inputs.dry_run }}
+        run: |
+          echo "Dry run only. No branch or PR was created."
+          git diff --stat
