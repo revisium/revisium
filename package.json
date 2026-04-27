@@ -39,7 +39,7 @@
     "@nestjs/platform-express": "^11.1.11",
     "@nestjs/swagger": "^11.2.4",
     "@revisium/admin": "^2.6.0-alpha.0",
-    "@revisium/core": "^2.10.0-alpha.0",
+    "@revisium/core": "^2.10.0-alpha.1",
     "@revisium/endpoint": "^2.6.0-alpha.0",
     "graphql": "^16.12.0"
   },
