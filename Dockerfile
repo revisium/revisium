@@ -9,7 +9,11 @@ COPY package-lock.json ./
 
 RUN npm ci
 
-COPY . .
+COPY nest-cli.json ./
+COPY tsconfig.json ./
+COPY tsconfig.build.json ./
+COPY prisma.config.ts ./
+COPY src/ ./src/
 
 RUN npm run build
 
@@ -36,4 +40,3 @@ RUN chown -R node:node /home/app
 USER node
 
 CMD ["npm", "run", "start:prod"]
-
