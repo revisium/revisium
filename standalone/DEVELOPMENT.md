@@ -39,15 +39,18 @@ npm run build && bash standalone/build.sh
 Modules marked `--external` are NOT bundled:
 
 **Native modules (npm dependencies):**
+
 - `embedded-postgres` — downloads platform-specific PostgreSQL binary
 - `sharp` — native image processing (libvips)
 - `bcrypt` — native password hashing
 - `pg-native` — optional native PostgreSQL driver (conditionally imported)
 
 **NestJS modules loaded via dynamic require** (npm dependencies):
+
 - `@nestjs/microservices` — used by core's notification module (Redis transport)
 
 **NestJS optional/lazy imports** (require'd inside try/catch, never actually used):
+
 - `@nestjs/websockets`, `@fastify/static`, `class-transformer/storage`
 - `nats`, `mqtt`, `kafkajs`, `amqplib`, `amqp-connection-manager` — microservice transports
 - `@grpc/grpc-js`, `@grpc/proto-loader` — gRPC transport
@@ -58,12 +61,18 @@ When a new optional dependency causes esbuild to fail or crashes at runtime, add
 
 ## Path Resolution
 
-In the bundled output, `__dirname` = `<package>/dist/`. The entry point `bin/revisium-standalone.js` sets env vars before spawning the bundle so they're available at module load time:
+In the bundled output, `__dirname` = `<package>/dist/`. The entry point `bin/revisium-standalone.js` sets package path env vars before spawning the bundle. `src/standalone.ts` sets runtime defaults before dynamically importing `AppModule`, so modules that choose providers at import/decorator time see the standalone defaults.
 
-| Env Var | Value | Used By |
-|---------|-------|---------|
-| `REVISIUM_CLIENT_DIR` | `<package>/client` | `AdminModule.forRoot()` in `app.module.ts` |
-| `REVISIUM_TEMPLATES_DIR` | `<package>/templates` | `TemplateService` in `@revisium/core` |
+| Env Var                       | Value                                                          | Used By                                     |
+| ----------------------------- | -------------------------------------------------------------- | ------------------------------------------- |
+| `REVISIUM_STANDALONE`         | `1`                                                            | `ConfigModule` ignores `.env` files         |
+| `REVISIUM_CLIENT_DIR`         | `<package>/client`                                             | `AdminModule.forRoot()` in `app.module.ts`  |
+| `REVISIUM_TEMPLATES_DIR`      | `<package>/templates`                                          | `TemplateService` in `@revisium/core`       |
+| `JWT_SECRET`                  | `<data>/jwt-secret` unless overridden                          | Auth tokens and internal API keys           |
+| `STORAGE_PROVIDER`            | `local` unless overridden, or `s3` when complete S3 env exists | `@revisium/core` storage provider selection |
+| `STORAGE_LOCAL_PATH`          | `<data>/uploads` unless overridden                             | `LocalStorageService`                       |
+| `PUBLIC_URL`                  | `http://localhost:<port>` unless overridden                    | OAuth/MCP metadata and local file URL base  |
+| `FILE_PLUGIN_PUBLIC_ENDPOINT` | `PUBLIC_URL/files` for local storage unless overridden         | file URL generation                         |
 
 These env vars have no effect on Docker builds — the code falls back to `__dirname`-based paths when unset.
 
@@ -81,6 +90,16 @@ Build locally with `npm run standalone:build` and inspect with `cd standalone &&
 
 ## Testing Locally
 
+Preferred full smoke test from the repository root:
+
+```bash
+bash scripts/standalone-smoke-test.sh
+```
+
+That command builds a real package tarball, installs it in a temp project, and runs through the packaged `npx revisium-standalone` path.
+
+For a manual package install:
+
 ```bash
 cd standalone && npm pack
 mkdir /tmp/standalone-test && cd /tmp/standalone-test
@@ -89,16 +108,26 @@ npm install /path/to/revisium-standalone-*.tgz
 npx revisium-standalone
 ```
 
+For a direct entrypoint run from the repository root, install the generated package runtime dependencies first:
+
+```bash
+npm run standalone:build
+npm --prefix standalone install --no-package-lock
+node standalone/bin/revisium-standalone.js
+```
+
+Direct entrypoint runs need `standalone/node_modules` because native/runtime externals such as `embedded-postgres`, `sharp`, and `bcrypt` are intentionally not bundled.
+
 ## Size Budget
 
-| Component | Size |
-|-----------|------|
-| Main bundle (minified) | ~14MB |
-| Seed bundle (minified) | ~5MB |
-| Admin client | ~3.5MB |
-| Prisma assets | ~0.3MB |
-| **tgz (compressed)** | **~7MB** |
-| Native deps (installed) | ~200MB |
+| Component               | Size     |
+| ----------------------- | -------- |
+| Main bundle (minified)  | ~14MB    |
+| Seed bundle (minified)  | ~5MB     |
+| Admin client            | ~3.5MB   |
+| Prisma assets           | ~0.3MB   |
+| **tgz (compressed)**    | **~7MB** |
+| Native deps (installed) | ~200MB   |
 
 ## Package Structure
 
