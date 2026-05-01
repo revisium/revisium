@@ -45,12 +45,18 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 TEMP_DIR=$(mktemp -d)
 DATA_DIR=$(mktemp -d)
+AUTH_DATA_DIR=$(mktemp -d)
 SERVER_PID=""
 SECOND_SERVER_PID=""
+AUTH_SERVER_PID=""
 PG_PORT_LABEL="auto"
 
 cleanup() {
   echo "--- Cleaning up ---"
+  if [[ -n "$AUTH_SERVER_PID" ]]; then
+    kill "$AUTH_SERVER_PID" 2>/dev/null || true
+    wait "$AUTH_SERVER_PID" 2>/dev/null || true
+  fi
   if [[ -n "$SECOND_SERVER_PID" ]]; then
     kill "$SECOND_SERVER_PID" 2>/dev/null || true
     wait "$SECOND_SERVER_PID" 2>/dev/null || true
@@ -59,7 +65,7 @@ cleanup() {
     kill "$SERVER_PID" 2>/dev/null || true
     wait "$SERVER_PID" 2>/dev/null || true
   fi
-  rm -rf "$TEMP_DIR" "$DATA_DIR"
+  rm -rf "$TEMP_DIR" "$DATA_DIR" "$AUTH_DATA_DIR"
   return 0
 }
 trap cleanup EXIT
@@ -67,6 +73,7 @@ trap cleanup EXIT
 echo "=== Standalone Smoke Test ==="
 echo "  TEMP_DIR=$TEMP_DIR"
 echo "  DATA_DIR=$DATA_DIR"
+echo "  AUTH_DATA_DIR=$AUTH_DATA_DIR"
 
 # 1. Pack the standalone package
 echo "--- Packing standalone ---"
@@ -95,6 +102,8 @@ STANDALONE_ENV=(
   -u S3_BUCKET
   -u S3_ACCESS_KEY_ID
   -u S3_SECRET_ACCESS_KEY
+  -u COOKIE_SECURE
+  -u COOKIE_SAMESITE
 )
 START_CMD=(npx revisium-standalone --port "$PORT" --data "$DATA_DIR")
 if [[ -n "${PG_PORT:-}" ]]; then
@@ -221,6 +230,18 @@ assert_contains() {
   else
     echo "  FAIL: $desc (response does not contain '$substring')"
     echo "  Response: $(echo "$body" | head -c 200)"
+    FAIL=$((FAIL + 1))
+  fi
+  return 0
+}
+
+assert_set_cookie() {
+  local desc="$1" cookie_name="$2" headers_file="$3"
+  if grep -Eiq "^set-cookie:[[:space:]]*${cookie_name}=" "$headers_file"; then
+    echo "  PASS: $desc"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: $desc (${cookie_name} was not set)"
     FAIL=$((FAIL + 1))
   fi
   return 0
@@ -382,6 +403,104 @@ assert_json "GraphQL responds" \
 
 # Admin UI
 assert_contains "Admin UI serves HTML" "<html" "${BASE_URL}/"
+
+AUTH_PORT=$(find_free_port)
+AUTH_BASE_URL="http://localhost:${AUTH_PORT}"
+AUTH_COOKIE_JAR="$TEMP_DIR/auth-cookies.txt"
+AUTH_LOGIN_HEADERS="$TEMP_DIR/auth-login.headers"
+AUTH_LOGIN_BODY="$TEMP_DIR/auth-login.json"
+AUTH_REFRESH_HEADERS="$TEMP_DIR/auth-refresh.headers"
+AUTH_REFRESH_BODY="$TEMP_DIR/auth-refresh.json"
+
+echo "--- Starting auth server (port=${AUTH_PORT}) ---"
+"${STANDALONE_ENV[@]}" \
+  npx revisium-standalone --port "$AUTH_PORT" --data "$AUTH_DATA_DIR" --auth &
+AUTH_SERVER_PID=$!
+
+AUTH_ELAPSED=0
+AUTH_READY=0
+while [[ $AUTH_ELAPSED -lt $TIMEOUT ]]; do
+  if curl -sf "${AUTH_BASE_URL}/api" > /dev/null 2>&1; then
+    AUTH_READY=1
+    break
+  fi
+  if ! kill -0 "$AUTH_SERVER_PID" 2>/dev/null; then
+    break
+  fi
+  sleep 2
+  AUTH_ELAPSED=$((AUTH_ELAPSED + 2))
+done
+
+if [[ $AUTH_READY -eq 1 ]]; then
+  echo "  PASS: Auth server starts with --auth"
+  PASS=$((PASS + 1))
+
+  AUTH_LOGIN_STATUS=$(curl -sS -o "$AUTH_LOGIN_BODY" -D "$AUTH_LOGIN_HEADERS" -w "%{http_code}" \
+    -X POST "${AUTH_BASE_URL}/api/auth/login" \
+    -H "$JSON_CONTENT_TYPE" \
+    -c "$AUTH_COOKIE_JAR" \
+    -d '{"emailOrUsername":"admin","password":"admin"}') || true
+  if [[ "$AUTH_LOGIN_STATUS" == "201" ]]; then
+    echo "  PASS: Auth login succeeds (HTTP $AUTH_LOGIN_STATUS)"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: Auth login succeeds (expected HTTP 201, got $AUTH_LOGIN_STATUS)"
+    echo "  Response: $(head -c 300 "$AUTH_LOGIN_BODY" 2>/dev/null || true)"
+    FAIL=$((FAIL + 1))
+  fi
+
+  ACCESS_TOKEN=$(json_extract ".accessToken" < "$AUTH_LOGIN_BODY") || ACCESS_TOKEN=""
+  if [[ -n "$ACCESS_TOKEN" ]]; then
+    echo "  PASS: Auth login returns accessToken"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: Auth login did not return accessToken"
+    FAIL=$((FAIL + 1))
+  fi
+
+  assert_set_cookie "Auth login sets rev_at cookie" "rev_at" "$AUTH_LOGIN_HEADERS"
+  assert_set_cookie "Auth login sets rev_rt cookie" "rev_rt" "$AUTH_LOGIN_HEADERS"
+  assert_set_cookie "Auth login sets rev_session cookie" "rev_session" "$AUTH_LOGIN_HEADERS"
+
+  if [[ -n "$ACCESS_TOKEN" ]]; then
+    assert_json "Auth /api/user/me accepts Bearer token" \
+      "JSON.parse(d).username === 'admin'" \
+      -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+      "${AUTH_BASE_URL}/api/user/me"
+  fi
+
+  assert_json "Auth /api/user/me accepts login cookies" \
+    "JSON.parse(d).username === 'admin'" \
+    -b "$AUTH_COOKIE_JAR" \
+    "${AUTH_BASE_URL}/api/user/me"
+
+  assert_json "Auth GraphQL me accepts login cookies" \
+    "(() => { const r = JSON.parse(d); return !r.errors && r.data.me.username === 'admin'; })()" \
+    -X POST "${AUTH_BASE_URL}/graphql" \
+    -H "$JSON_CONTENT_TYPE" \
+    -b "$AUTH_COOKIE_JAR" \
+    -d '{"query":"{ me { id username } }"}'
+
+  AUTH_REFRESH_STATUS=$(curl -sS -o "$AUTH_REFRESH_BODY" -D "$AUTH_REFRESH_HEADERS" -w "%{http_code}" \
+    -X POST "${AUTH_BASE_URL}/api/auth/refresh" \
+    -b "$AUTH_COOKIE_JAR" \
+    -c "$AUTH_COOKIE_JAR") || true
+  if [[ "$AUTH_REFRESH_STATUS" == "200" ]]; then
+    echo "  PASS: Auth refresh accepts rev_rt cookie (HTTP $AUTH_REFRESH_STATUS)"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: Auth refresh accepts rev_rt cookie (expected HTTP 200, got $AUTH_REFRESH_STATUS)"
+    echo "  Response: $(head -c 300 "$AUTH_REFRESH_BODY" 2>/dev/null || true)"
+    FAIL=$((FAIL + 1))
+  fi
+
+  assert_set_cookie "Auth refresh sets rev_at cookie" "rev_at" "$AUTH_REFRESH_HEADERS"
+  assert_set_cookie "Auth refresh sets rev_rt cookie" "rev_rt" "$AUTH_REFRESH_HEADERS"
+  assert_set_cookie "Auth refresh sets rev_session cookie" "rev_session" "$AUTH_REFRESH_HEADERS"
+else
+  echo "  FAIL: Auth server did not start with --auth"
+  FAIL=$((FAIL + 1))
+fi
 
 echo ""
 echo "=== Results: ${PASS} passed, ${FAIL} failed ==="

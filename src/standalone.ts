@@ -15,8 +15,12 @@ import { randomBytes } from 'node:crypto';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import type { RequestHandler } from 'express';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { initSwagger } from '@revisium/core';
+import * as cookieParserModule from 'cookie-parser';
+
+const cookieParser = cookieParserModule as unknown as () => RequestHandler;
 
 interface EmbeddedPostgresInstance {
   initialise(): Promise<void>;
@@ -130,6 +134,20 @@ function appendUrlPath(baseUrl: string, path: string): string {
     normalizedBaseUrl = normalizedBaseUrl.slice(0, -1);
   }
   return `${normalizedBaseUrl}${path}`;
+}
+
+function isLocalHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol === 'http:' &&
+      (url.hostname === 'localhost' ||
+        url.hostname === '127.0.0.1' ||
+        url.hostname === '[::1]')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function isExpectedPostgresShutdownError(error: unknown): boolean {
@@ -350,6 +368,11 @@ function applyRuntimeEnv(args: StandaloneArgs, databaseUrl: string): void {
   setEnvIfUnset('PUBLIC_URL', `http://localhost:${args.port}`);
   setEnvIfUnset('CACHE_ENABLED', '1');
   setEnvIfUnset('REVISIUM_STANDALONE', '1');
+
+  if (isLocalHttpUrl(process.env.PUBLIC_URL)) {
+    setEnvIfUnset('COOKIE_SECURE', 'false');
+    setEnvIfUnset('COOKIE_SAMESITE', 'lax');
+  }
 
   if (!process.env.JWT_SECRET) {
     process.env.JWT_SECRET = readOrCreateJwtSecret(args.dataDir);
@@ -621,6 +644,7 @@ async function main() {
   const bodyLimit = config.get('BODY_LIMIT') ?? '10mb';
 
   app.useBodyParser('json', { limit: bodyLimit });
+  app.use(cookieParser());
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
