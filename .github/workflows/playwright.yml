@@ -50,14 +50,21 @@ jobs:
         run: npm run start:debug &
 
       - name: Wait for NestJS to be ready
-        run: npx wait-on http://localhost:8080
+        run: |
+          for attempt in {1..60}; do
+            if curl -fsS http://localhost:8080 > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        run: ./node_modules/.bin/playwright install --with-deps
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: ./node_modules/.bin/playwright test
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ !cancelled() }}
