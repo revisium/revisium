@@ -46,6 +46,7 @@ lerna-debug.log*
 /standalone/templates
 /standalone/package.json
 /standalone/*.tgz
+/standalone/node_modules
 
 # Playwright
 /test-results/
