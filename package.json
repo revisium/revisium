@@ -38,9 +38,9 @@
     "@nestjs/core": "^11.1.11",
     "@nestjs/platform-express": "^11.1.11",
     "@nestjs/swagger": "^11.2.4",
-    "@revisium/admin": "^2.6.0-alpha.1",
-    "@revisium/core": "^2.10.0-alpha.2",
-    "@revisium/endpoint": "^2.6.0-alpha.1",
+    "@revisium/admin": "^2.6.0",
+    "@revisium/core": "^2.10.0",
+    "@revisium/endpoint": "^2.6.0",
     "cookie-parser": "^1.4.7",
     "graphql": "^16.12.0"
   },
