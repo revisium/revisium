@@ -1,26 +1,19 @@
-import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConsoleLogger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { initSwagger } from '@revisium/core';
 import { AppModule } from 'src/app.module';
+import { configureHttpApp } from 'src/configure-http-app';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new ConsoleLogger({
       json: true,
       colors: true,
     }),
   });
 
-  app.enableCors();
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-    }),
-  );
-
-  const config = app.get(ConfigService);
+  const config = configureHttpApp(app);
   const port = config.get('PORT') ?? 8080;
 
   initSwagger(app);
