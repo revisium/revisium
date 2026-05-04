@@ -1,4 +1,4 @@
-FROM node:24.11.1 AS builder
+FROM node:24.11.1-bullseye AS builder
 
 ENV NODE_ENV=development
 
