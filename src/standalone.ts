@@ -12,15 +12,11 @@ import {
 } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConsoleLogger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import type { RequestHandler } from 'express';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { initSwagger } from '@revisium/core';
-import * as cookieParserModule from 'cookie-parser';
-
-const cookieParser = cookieParserModule as unknown as () => RequestHandler;
+import { configureHttpApp } from './configure-http-app';
 
 interface EmbeddedPostgresInstance {
   initialise(): Promise<void>;
@@ -640,13 +636,7 @@ async function main() {
     }),
   });
 
-  const config = app.get(ConfigService);
-  const bodyLimit = config.get('BODY_LIMIT') ?? '10mb';
-
-  app.useBodyParser('json', { limit: bodyLimit });
-  app.use(cookieParser());
-  app.enableCors();
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  configureHttpApp(app);
 
   initSwagger(app);
 
