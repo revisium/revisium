@@ -150,8 +150,8 @@ Standalone CLI options:
 | `CORE_API_URL`               | `http://0.0.0.0:{PORT}`                                      | Core API base URL used by endpoint.                          |
 | `CORE_API_URL_USERNAME`      | -                                                            | Deprecated endpoint-to-core password auth username.          |
 | `CORE_API_URL_PASSWORD`      | -                                                            | Deprecated endpoint-to-core password auth password.          |
-| `INTERNAL_API_KEY_ENDPOINT`  | derived in monolith; required/preferred in microservice mode | Internal API key for endpoint-to-core auth.                  |
-| `INTERNAL_API_KEY_{SERVICE}` | -                                                            | Internal API key for an additional service.                  |
+| `INTERNAL_API_KEY_ENDPOINT`  | derived in monolith; required/preferred in microservice mode | Internal API key for endpoint-to-core auth. In microservice mode, must match the core value and `/^rev_[A-Za-z0-9_-]{22}$/`. |
+| `INTERNAL_API_KEY_{SERVICE}` | -                                                            | Internal API key for an additional service. Values must match `/^rev_[A-Za-z0-9_-]{22}$/`. |
 | `INTERNAL_MONOLITH_SERVICES` | `endpoint`                                                   | Comma-separated services for derived monolith internal keys. |
 
 ## Admin Runtime
