@@ -38,9 +38,9 @@
     "@nestjs/core": "^11.1.11",
     "@nestjs/platform-express": "^11.1.11",
     "@nestjs/swagger": "^11.2.4",
-    "@revisium/admin": "^2.6.0",
-    "@revisium/core": "^2.10.0",
-    "@revisium/endpoint": "^2.6.0",
+    "@revisium/admin": "^2.7.0-alpha.3",
+    "@revisium/core": "^2.11.0-alpha.2",
+    "@revisium/endpoint": "^2.7.0-alpha.2",
     "cookie-parser": "^1.4.7",
     "graphql": "^16.12.0"
   },
@@ -74,7 +74,7 @@
     "typescript-eslint": "^8.56.0"
   },
   "overrides": {
-    "hono": "^4.12.14",
+    "hono": "^4.12.18",
     "@hono/node-server": "^1.19.13",
     "lodash": "^4.18.1",
     "@angular-devkit/core": {
@@ -83,7 +83,10 @@
     "schema-utils": {
       "ajv": "^8.18.0"
     },
+    "fast-uri": "^3.1.2",
+    "fast-xml-builder": "^1.2.0",
     "file-type": "^21.3.2",
+    "ip-address": "^10.2.0",
     "valibot": "^1.2.0",
     "effect": "^3.21.0",
     "immutable": "^4.3.8",
