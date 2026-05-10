@@ -21,7 +21,7 @@
     "prisma.config.ts"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=24.11.1 <25"
   },
   "keywords": [
     "revisium",

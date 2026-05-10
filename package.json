@@ -6,6 +6,9 @@
   "homepage": "https://revisium.io",
   "license": "Apache-2.0",
   "author": "Anton Kashirov",
+  "engines": {
+    "node": ">=24.11.1 <25"
+  },
   "scripts": {
     "prisma:migrate:deploy": "npx prisma migrate deploy  --schema node_modules/@revisium/core/dist/prisma/schema.prisma",
     "prisma:studio": "npx prisma studio",
