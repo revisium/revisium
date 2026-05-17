@@ -20,8 +20,9 @@ export function configureRobotsIndexing(
   app: NestExpressApplication,
   config: ConfigService,
 ): void {
-  const robotsTxt = config.get<string>(ROBOTS_TXT_ENV);
-  const hasCustomRobotsTxt = robotsTxt !== undefined && robotsTxt !== '';
+  const robotsTxt = config.get<string | null>(ROBOTS_TXT_ENV);
+  const hasCustomRobotsTxt =
+    robotsTxt !== undefined && robotsTxt !== null && robotsTxt !== '';
 
   if (!hasCustomRobotsTxt) {
     app.use((_req: Request, res: Response, next: NextFunction) => {
