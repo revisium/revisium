@@ -2,6 +2,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
+import { configureRobotsIndexing } from './robots-indexing';
 
 const DEFAULT_BODY_LIMIT = '10mb';
 
@@ -60,6 +61,7 @@ export function configureHttpApp(app: NestExpressApplication): ConfigService {
   const bodyLimit = config.get<string>('BODY_LIMIT') ?? DEFAULT_BODY_LIMIT;
 
   configureTrustProxy(app, config);
+  configureRobotsIndexing(app, config);
 
   app.useBodyParser('json', { limit: bodyLimit });
   app.use(cookieParser());

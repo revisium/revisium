@@ -18,6 +18,7 @@ This document lists the environment variables consumed by the Revisium self-host
 | `STORAGE_LOCAL_PATH`          | `<data>/uploads` unless set          | Local file uploads directory.                                          |
 | `PUBLIC_URL`                  | `http://localhost:{PORT}`            | Public base URL for OAuth, MCP, and local file URLs.                   |
 | `FILE_PLUGIN_PUBLIC_ENDPOINT` | `PUBLIC_URL/files` for local storage | Public file URL prefix for local storage.                              |
+| `REVISIUM_ROBOTS_TXT`          | `User-agent: *` + `Disallow: /` | Full `/robots.txt` content. Use `\n` for line breaks in env values. When unset/empty, standalone also sends `X-Robots-Tag: noindex, nofollow, noarchive`. |
 | `REVISIUM_CLIENT_DIR`         | package `client/`                    | Admin UI assets.                                                       |
 | `REVISIUM_TEMPLATES_DIR`      | package `templates/`                 | Email templates.                                                       |
 
@@ -47,6 +48,7 @@ Standalone CLI options:
 | `NODE_ENV`    | -                                                                           | Used for production-sensitive defaults such as cookies and CORS.                  |
 | `TRUST_PROXY` | unset                                                                       | Express `trust proxy` value: `true`, `false`, integer hop count, or IP/CIDR list. |
 | `CORS_ORIGIN` | dev: reflect request origin; production: same-origin only                   | Comma-separated credentialed CORS allowlist.                                      |
+| `REVISIUM_ROBOTS_TXT` | `User-agent: *` + `Disallow: /`                                                  | Full `/robots.txt` content. Use `\n` for line breaks in env values. When unset/empty, responses include `X-Robots-Tag: noindex, nofollow, noarchive`. Set this value to take full control of crawler rules. |
 
 ## Authentication
 
