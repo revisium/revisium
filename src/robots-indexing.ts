@@ -12,7 +12,7 @@ export function getRobotsTxt(value: string | null | undefined): string {
     return DEFAULT_ROBOTS_TXT;
   }
 
-  const robotsTxt = value.replace(/\\n/g, '\n');
+  const robotsTxt = value.replaceAll('\\n', '\n');
   return robotsTxt.endsWith('\n') ? robotsTxt : `${robotsTxt}\n`;
 }
 

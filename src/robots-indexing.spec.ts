@@ -15,7 +15,7 @@ describe('robots-indexing', () => {
   });
 
   it('supports escaped newlines in the custom robots.txt value', () => {
-    expect(getRobotsTxt('User-agent: *\\nAllow: /')).toBe(
+    expect(getRobotsTxt(String.raw`User-agent: *\nAllow: /`)).toBe(
       'User-agent: *\nAllow: /\n',
     );
   });
